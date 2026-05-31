@@ -42,7 +42,7 @@ def SRK(massa, massa_total, temperatura, pressão, componentes):
 
     return alfa, aci, ai, bi, aij, a_mix, b_mix, A, B, Z
 
-def fugacidade(massa, massa_total, parametros, componentes):
+def coef_fugacidade(massa, massa_total, parametros, componentes):
     y = {}
     for componente in componentes:
         y[componente] = massa[componente]/massa_total

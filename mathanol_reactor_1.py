@@ -1,5 +1,5 @@
 import json
-from thermodynamic import SRK, fugacidade, capacidade_calorífica, viscosidade
+from methanol_reactor.thermodynamic import SRK, coef_fugacidade, capacidade_calorífica, viscosidade
 from math import exp
 from scipy.integrate import solve_ivp
 
@@ -30,7 +30,7 @@ def cinetica(vazao_molar, temperatura, pressao, componentes, parametros):
     KCO2=1.02e-7*exp(68000/rt)
     RKH2=KH2O/(5.64e-11*exp(105600/rt))
 
-    phi=fugacidade(vazao_massica, vazao_massica_total, parametros, componentes)
+    phi=coef_fugacidade(vazao_massica, vazao_massica_total, parametros, componentes)
     pressoes_parciais = {}
 
     for componente in componentes:
