@@ -2,11 +2,11 @@
 
 import numpy as np
 
-def SRK(massa, massa_total, temperatura, pressão, componentes):
+def SRK(mol, mol_total, temperatura, pressão, componentes):
         
     y = {}
     for componente in componentes:
-        y[componente] = massa[componente]/massa_total
+        y[componente] = mol[componente]/mol_total
     
     R = 8.314 # J/mol.K
 
@@ -17,9 +17,9 @@ def SRK(massa, massa_total, temperatura, pressão, componentes):
 
     for componente in componentes:
         alfa[componente]=(1+(0.480+(1.574*componentes[componente]["w"])-(0.176*componentes[componente]["w"]**2))*(1-((temperatura/componentes[componente]["Tc"])**0.5)))**2
-        aci[componente]=0.42748*(((R**2)*(componentes[componente]["Tc"]**2.5))/componentes[componente]["Pc"])
+        aci[componente]=0.42748*(((R**2)*(componentes[componente]["Tc"]**2))/componentes[componente]["Pc"])
         ai[componente]=alfa[componente]*aci[componente]
-        bi[componente]=0.008664*R*componentes[componente]["Tc"]/componentes[componente]["Pc"]
+        bi[componente]=0.08664*R*componentes[componente]["Tc"]/componentes[componente]["Pc"]
     
     #Regra de mistura
     aij = {}
@@ -42,10 +42,10 @@ def SRK(massa, massa_total, temperatura, pressão, componentes):
 
     return alfa, aci, ai, bi, aij, a_mix, b_mix, A, B, Z
 
-def coef_fugacidade(massa, massa_total, parametros, componentes):
+def coef_fugacidade(mol, mol_total, parametros, componentes):
     y = {}
     for componente in componentes:
-        y[componente] = massa[componente]/massa_total
+        y[componente] = mol[componente]/mol_total
     
     phi = {}
     for componente1 in componentes:

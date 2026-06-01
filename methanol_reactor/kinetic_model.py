@@ -53,12 +53,18 @@ def cinetica(condicoes_iniciais, componentes):
     KCO2=1.02e-7*exp(68000/rt)
     RKH2=KH2O/(5.64e-11*exp(105600/rt))
 
-    phi=coef_fugacidade(vazao_massica, vazao_massica_total, parametros, componentes)
+    phi=coef_fugacidade(vazao_molar, vazao_molar_total, parametros, componentes)
+    # print("==== PARÂMETROS =====")
+    # print(parametros)
+    # print("==== COEF FUGACIDADE ====")
+    # print(phi)
+    #phi = 1
     pressoes_parciais = {}
 
     for componente in componentes:
         fracao_molar = vazao_molar[componente] / vazao_molar_total
         pressoes_parciais[componente] = fracao_molar * phi[componente] * (pressao / 101325)
+        #pressoes_parciais[componente] = fracao_molar * phi * (pressao / 101325)
 
     r1=(ka*KCO*((pressoes_parciais["CO"]*(pressoes_parciais["H2"]**1.5))-(pressoes_parciais["CH3OH"]/(Kpa*(pressoes_parciais["H2"]**0.5)))))/((1+(KCO*pressoes_parciais["CO"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
     r2=(kb*KCO2*((pressoes_parciais["CO"]*pressoes_parciais["H2"])-((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/Kpb)))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
