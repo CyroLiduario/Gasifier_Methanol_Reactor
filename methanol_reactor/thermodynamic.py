@@ -67,7 +67,11 @@ def capacidade_calorífica(componentes, temperatura):
     R = 8.314
     cp = {}
     for componente in componentes:
-        cp[componente] = R*(componente["A"]+(componente["B"]*temperatura)+(componente["C"]*(temperatura**2))+(componente["D"]*(temperatura**-2))+(componente["E"]*(temperatura**3)))
+        cp[componente] = R*(componentes[componente]["A"]+
+                            (componentes[componente]["B"]*temperatura)+
+                            (componentes[componente]["C"]*(temperatura**2))+
+                            (componentes[componente]["D"]*(temperatura**-2))+
+                            (componentes[componente]["E"]*(temperatura**3)))
     
     return cp
 

@@ -6,6 +6,8 @@ from scipy.integrate import solve_ivp
 with open('./materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
+# Confirmar se as vazões estão em kmol/h
+# Arbitrar um número de tubos (dividir a vazão total pelo número de tubos)
 vazao_molar = {
     "CO" : 945,
     "H2" : 1850,
@@ -70,6 +72,10 @@ solucao = solve_ivp(
 # Extraindo os tempos (ou massas de catalisador)
 tempo = solucao.t
 
+# ==========================
+#   GRÁFICO DE COMPOSIÇÃO
+# ==========================
+
 # Extraindo as soluções para cada componente
 vazao_CO = solucao.y[0]
 vazao_H2 = solucao.y[1]
@@ -97,5 +103,36 @@ plt.title('Soluções da EDO para cada componente', fontsize=14)
 plt.legend()
 plt.grid(True)
 
-# Mostrar gráfico
+# ==========================
+#   PERFIL DE PRESSÃO
+# ==========================
+pressao = solucao.y[8]
+# Plotando os resultados
+plt.figure(figsize=(10, 6))
+
+plt.plot(tempo, pressao, label="P [Pa]")
+
+# Personalização do gráfico
+plt.xlabel('Massa de Catalisador (g)', fontsize=12)
+plt.ylabel('Pressão [Pa]', fontsize=12)
+plt.title('Perfil de Pressão', fontsize=14)
+plt.legend()
+plt.grid(True)
+
+# ==========================
+#   PERFIL DE TEMPERATURA
+# ==========================
+
+temperatura = solucao.y[7]
+# Plotando os resultados
+plt.figure(figsize=(10, 6))
+
+plt.plot(tempo, temperatura, label="T [K]")
+
+# Personalização do gráfico
+plt.xlabel('Massa de Catalisador (g)', fontsize=12)
+plt.ylabel('Temperatura [K]', fontsize=12)
+plt.title('Perfil de Temperatura', fontsize=14)
+plt.legend()
+plt.grid(True)
 plt.show()
