@@ -2,7 +2,6 @@ import json
 import matplotlib.pyplot as plt
 from kinetic_model import cinetica
 from scipy.integrate import solve_ivp
-from thermodynamic import SRK
 
 with open('./materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
@@ -23,24 +22,10 @@ for componente in componentes:
 
 vazao_massica_total = sum(vazao_massica.values())
 
-alfa, aci, ai, bi, aij, a_mix, b_mix, A, B, Z = SRK(vazao_massica, vazao_massica_total, 298, 1e5,componentes)
-parametros = {
-    "alfa" : alfa,
-    "aci" : aci,
-    "ai" : ai,
-    "bi" : bi,
-    "aij" : aij,
-    "a_mix" : a_mix,
-    "b_mix" : b_mix,
-    "A" : A,
-    "B" : B,
-    "Z" : Z
-}
-
 massa_de_catalisador = (0, 20000)
 condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5]
 
-def sistema_edos(w, y, componentes, parametros):
+def sistema_edos(w, y, componentes):
     # y representa as variáveis dependentes (vazão molar, por exemplo)
     # y é um vetor com as quantidades de cada componente no sistema
     condicoes_iniciais = {
@@ -56,7 +41,7 @@ def sistema_edos(w, y, componentes, parametros):
     }
     
     # Chama a função de cinética que calcula as taxas de geração
-    taxa_de_geracao = cinetica(condicoes_iniciais, componentes, parametros)
+    taxa_de_geracao = cinetica(condicoes_iniciais, componentes)
 
     # Converte o dicionário de taxas de geração em uma lista de derivadas
     dy_dt = [
@@ -78,7 +63,7 @@ solucao = solve_ivp(
     sistema_edos,
     massa_de_catalisador,
     condicoes_iniciais,
-    args=(componentes, parametros),
+    args=(componentes,),
     method='RK45'  # Método Runge-Kutta de 4ª e 5ª ordem
 )
 

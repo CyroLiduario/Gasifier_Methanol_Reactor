@@ -1,7 +1,7 @@
 from math import exp
-from thermodynamic import coef_fugacidade, viscosidade
+from thermodynamic import coef_fugacidade, viscosidade, SRK
 
-def cinetica(condicoes_iniciais, componentes, parametros):
+def cinetica(condicoes_iniciais, componentes):
     
     vazao_molar = {componente: valor for componente, valor in condicoes_iniciais.items() if componente not in ("P", "T")}
     temperatura = condicoes_iniciais["T"]
@@ -14,7 +14,21 @@ def cinetica(condicoes_iniciais, componentes, parametros):
 
     vazao_massica_total = sum(vazao_massica.values())
     
-    vazao_volumetrica = vazao_molar_total * parametros["Z"]*8.314*temperatura*pressao
+    alfa, aci, ai, bi, aij, a_mix, b_mix, A, B, Z = SRK(vazao_molar, vazao_molar_total, temperatura, pressao, componentes)
+    parametros = {
+        "alfa" : alfa,
+        "aci" : aci,
+        "ai" : ai,
+        "bi" : bi,
+        "aij" : aij,
+        "a_mix" : a_mix,
+        "b_mix" : b_mix,
+        "A" : A,
+        "B" : B,
+        "Z" : Z
+    }
+
+    vazao_volumetrica = vazao_molar_total * parametros["Z"]*8.314*temperatura/pressao
 
     # PERDA DE CARGA POR ERGUN
     # === TO-DO: finalizar código de perda de carga ===
