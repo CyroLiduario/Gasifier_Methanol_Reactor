@@ -38,9 +38,9 @@ parametros = {
 }
 
 massa_de_catalisador = (0, 20000)
-vazao_molar_inicial = list(vazao_molar.values())
+condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5]
 
-def sistema_edos(w, y, temperatura, pressao, componentes, parametros):
+def sistema_edos(w, y, componentes, parametros):
     # y representa as variáveis dependentes (vazão molar, por exemplo)
     # y é um vetor com as quantidades de cada componente no sistema
     condicoes_iniciais = {
@@ -51,8 +51,8 @@ def sistema_edos(w, y, temperatura, pressao, componentes, parametros):
         "H2O": y[4],
         "CO2": y[5],
         "N2": y[6],
-        "P": temperatura,
-        "T": pressao
+        "T": y[7],
+        "P": y[8]
     }
     
     # Chama a função de cinética que calcula as taxas de geração
@@ -67,8 +67,8 @@ def sistema_edos(w, y, temperatura, pressao, componentes, parametros):
         taxa_de_geracao["H2O"],
         taxa_de_geracao["CO2"],
         taxa_de_geracao["N2"],
-        taxa_de_geracao["P"],
-        taxa_de_geracao["T"]
+        taxa_de_geracao["T"],
+        taxa_de_geracao["P"]
     ]
     
     return dy_dt
@@ -77,8 +77,8 @@ def sistema_edos(w, y, temperatura, pressao, componentes, parametros):
 solucao = solve_ivp(
     sistema_edos,
     massa_de_catalisador,
-    vazao_molar_inicial,
-    args=(503, 60e5, componentes, parametros),
+    condicoes_iniciais,
+    args=(componentes, parametros),
     method='RK45'  # Método Runge-Kutta de 4ª e 5ª ordem
 )
 

@@ -60,5 +60,8 @@ def cinetica(condicoes_iniciais, componentes, parametros):
     taxa_de_geração["CO2"]=(-r2)+(-r3)
     taxa_de_geração["N2"]=0
 
+    taxa_de_geração["P"] = 0
+    taxa_de_geração["T"] = 0
+
     return taxa_de_geração
 
