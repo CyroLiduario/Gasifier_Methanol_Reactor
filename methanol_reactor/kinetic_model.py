@@ -1,8 +1,12 @@
 from math import exp
-from thermodynamic import coef_fugacidade
+from thermodynamic import coef_fugacidade, viscosidade
 
-def cinetica(vazao_molar, temperatura, pressao, componentes, parametros):
+def cinetica(condicoes_iniciais, componentes, parametros):
     
+    vazao_molar = {componente: valor for componente, valor in condicoes_iniciais.items() if componente not in ("P", "T")}
+    temperatura = condicoes_iniciais["T"]
+    pressao = condicoes_iniciais["P"]
+
     vazao_molar_total = sum(vazao_molar.values())
     vazao_massica = {}
     for componente in componentes:
@@ -11,6 +15,17 @@ def cinetica(vazao_molar, temperatura, pressao, componentes, parametros):
     vazao_massica_total = sum(vazao_massica.values())
     
     vazao_volumetrica = vazao_molar_total * parametros["Z"]*8.314*temperatura*pressao
+
+    # PERDA DE CARGA POR ERGUN
+    # === TO-DO: finalizar código de perda de carga ===
+    densidade_catalizador = 3950
+    visc_mistura = viscosidade(componentes, vazao_massica, vazao_massica_total, temperatura)
+    densidade_mistura = vazao_massica_total/vazao_volumetrica
+    velocidade = vazao_volumetrica*(0.002) #m²
+    porosidade = 0.55 #suposto
+    diametro_particula = 0.00311 #diametro do catalizador (artigo)
+    taxa_massica = densidade_mistura*velocidade
+    reynolds = diametro_particula*densidade_mistura*velocidade/(visc_mistura*(1-porosidade))
 
     rt=8.314*temperatura
     ka=1.88e8*exp(-113711/rt)
