@@ -36,7 +36,7 @@ for componente in componentes:
 vazao_massica_total = sum(vazao_massica.values())
 
 massa_de_catalisador = (0, 50)
-condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5]
+condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5, 0]
 
 def sistema_edos(w, y, componentes):
     # y representa as variáveis dependentes (vazão molar, por exemplo)
@@ -50,7 +50,8 @@ def sistema_edos(w, y, componentes):
         "CO2": y[5],
         "N2": y[6],
         "T": y[7],
-        "P": y[8]
+        "P": y[8],
+        "Q": y[9]
     }
     
     # Chama a função de cinética que calcula as taxas de geração
@@ -66,7 +67,8 @@ def sistema_edos(w, y, componentes):
         taxa_de_geracao["CO2"],
         taxa_de_geracao["N2"],
         taxa_de_geracao["T"],
-        taxa_de_geracao["P"]
+        taxa_de_geracao["P"],
+        taxa_de_geracao["Q"]
     ]
     
     return dy_dt
@@ -143,6 +145,23 @@ plt.plot(massa_cat, temperatura, label="T [K]")
 plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
 plt.ylabel('Temperatura [K]', fontsize=12)
 plt.title('Perfil de Temperatura', fontsize=14)
+plt.legend()
+plt.grid(True)
+
+# ==========================
+#   PERFIL DE CALOR
+# ==========================
+
+calor = solucao.y[9]
+# Plotando os resultados
+plt.figure(figsize=(10, 6))
+
+plt.plot(massa_cat, calor, label="Q [J/s]")
+
+# Personalização do gráfico
+plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
+plt.ylabel('Calor [J]', fontsize=12)
+plt.title('Perfil de Calor', fontsize=14)
 plt.legend()
 plt.grid(True)
 plt.show()
