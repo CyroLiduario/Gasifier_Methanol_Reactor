@@ -1,4 +1,4 @@
-from math import exp
+from math import exp, pi
 from thermodynamic import coef_fugacidade, viscosidade, SRK, capacidade_calorífica
 
 def cinetica(condicoes_iniciais, componentes):
@@ -7,8 +7,8 @@ def cinetica(condicoes_iniciais, componentes):
     temperatura = condicoes_iniciais["T"]
     pressao = condicoes_iniciais["P"]
 
-    print(f'Pressão: {pressao} Pa')
-    print(f'Temperatura: {temperatura} K')
+    #print(f'Pressão: {pressao} Pa')
+    #print(f'Temperatura: {temperatura} K')
 
     vazao_molar_total = sum(vazao_molar.values())
     vazao_massica = {}
@@ -17,7 +17,7 @@ def cinetica(condicoes_iniciais, componentes):
 
     vazao_massica_total = sum(vazao_massica.values())
     
-    print(f"Vazão Mássica: {vazao_massica_total}")
+    #print(f"Vazão Mássica: {vazao_massica_total}")
     
     alfa, aci, ai, bi, aij, a_mix, b_mix, A, B, Z = SRK(vazao_molar, vazao_molar_total, temperatura, pressao, componentes)
     parametros = {
@@ -80,9 +80,9 @@ def balanco_energia(componentes, temperatura, vazao_molar, r1, r2, r3):
     # ==============================
 
     # entalpias padrão de reação
-    dHp_r1 = (-90130) # reação de hidrogenação do monóxido de carbono
-    dHp_r2 = 41470 # water gas shift
-    dHp_r3 = (-48970) # hidrogenação do dióxido
+    dHp_r1 = (-90130) # reação de hidrogenação do monóxido de carbono - J/mol.K
+    dHp_r2 = 41470 # water gas shift - J/mol.K
+    dHp_r3 = (-48970) # hidrogenação do dióxido - J/mol.K
 
     #   capacidades caloríficas por reação
     cp = capacidade_calorífica(componentes, temperatura)
@@ -109,34 +109,20 @@ def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura,
     #   PERDA DE CARGA POR ERGUN
     # ================================
 
-    # === TO-DO: finalizar código de perda de carga ===
-    # densidade_catalizador = 3950 #kg/m³
-    # area_transversal = 0.002 #m²
-    # visc_mistura = viscosidade(componentes, vazao_massica, vazao_massica_total, temperatura)
-    # densidade_mistura = vazao_massica_total/vazao_volumetrica
-    # velocidade = vazao_volumetrica/area_transversal #m²
-    # porosidade = 0.55 #suposto
-    # diametro_particula = 0.00311 #diametro do catalizador (artigo)
-    # taxa_massica = densidade_mistura*velocidade
-    # reynolds = diametro_particula*densidade_mistura*velocidade/(visc_mistura*(1-porosidade))
-    # dPdW = 0
+    area_secao_transversal = pi*(0.0508/2)**2  # m² - tubo de 2 in
 
-    # ===============================
-
-    area_secao_transversal = 0.002  # m² (ajuste caso este valor represente o diâmetro)
-    porosidade = 0.55
-    diametro_particula = 0.00311  # m
-    densidade_particula_catalisador = 3950  # kg_cat/m³
+    porosidade = 0.6 # suposta - Salles (2013)
+    diametro_particula = 0.00311  # m - Salles (2013)
+    densidade_particula_catalisador = 3950  # kg_cat/m³ - Salles (2013)
     
-    # 1. Ajuste de Unidades para o SI (garantindo que massa esteja em kg para a Ergun)
-    # Se o MM no json for g/mol, vazao_massica está em g/s. Convertendo para kg/s:
-    vazao_massica_kg_s = vazao_massica_total
+    # Convertendo a vazão mássica para kg/s:
+    vazao_massica_kg_s = vazao_massica_total/1000
     
     # Viscosidade da mistura (garanta que a função retorne em Pa.s ou kg/(m.s))
     visc_mistura = viscosidade(componentes, vazao_massica, vazao_massica_total, temperatura)
-    
-    # 2. Propriedades Fluidodinâmicas
+
     velocidade = vazao_volumetrica / area_secao_transversal # m/s
+
     densidade_gas = vazao_massica_kg_s / vazao_volumetrica # kg/m³
     
     # 3. Equação de Ergun (Calcula dP/dz em Pa/m)
@@ -145,14 +131,11 @@ def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura,
     
     dP_dz = - (termo_viscoso * velocidade + termo_inercial * (velocidade**2))
     
-    # 4. Conversão de domínio (z para W)
+    # Conversão de domínio (z para W)
     # dW_dz = Massa de catalisador por metro de tubo (kg_cat / m)
     dW_dz_kg = area_secao_transversal * densidade_particula_catalisador * (1 - porosidade)
-    
-    # Como o nosso solver está integrando em GRAMAS de catalisador, convertemos:
-    dW_dz_g = dW_dz_kg * 1000 # g_cat / m
-    
-    # Queda de pressão por grama de catalisador (Pa / g_cat)
-    dPdW = dP_dz / dW_dz_g
-    print(dPdW)
+        
+    # Queda de pressão por grama de catalisador (Pa / kg_cat)
+    dPdW = dP_dz / dW_dz_kg
+
     return dPdW

@@ -8,23 +8,34 @@ with open('./materiais.json', 'r') as materiais:
 
 # Confirmar se as vazões estão em kmol/h
 # Arbitrar um número de tubos (dividir a vazão total pelo número de tubos)
-vazao_molar = {
-    "CO" : 945,
-    "H2" : 1850,
-    "CH3OH" : 18,
-    "CH4" : 29,
-    "H2O" : 26,
-    "CO2" : 483,
-    "N2" : 846
+vazao_molar = { #kmol/h
+    "CO" : 3418.4,
+    "H2" : 6788.6,
+    "CH3OH" : 65,
+    "CH4" : 303.1,
+    "H2O" : 42.8,
+    "CO2" : 42.8,
+    "N2" : 3048.7
 }
+#print(vazao_molar)
 
-vazao_massica = {}
+# transformando em mol/s
+
+vazao_molar = { componente: vazao_molar_comp*(1000/3600) for componente, vazao_molar_comp in vazao_molar.items()}
+#print(vazao_molar)
+
+# vazao por tubo
+numero_de_tubos = 2000
+vazao_molar = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazao_molar.items()}
+#print(vazao_molar)
+
+vazao_massica = {} # g/s
 for componente in componentes:
     vazao_massica[componente] = componentes[componente]["MM"] * vazao_molar[componente]
 
 vazao_massica_total = sum(vazao_massica.values())
 
-massa_de_catalisador = (0, 20000)
+massa_de_catalisador = (0, 50)
 condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5]
 
 def sistema_edos(w, y, componentes):
@@ -69,8 +80,8 @@ solucao = solve_ivp(
     method='RK45'  # Método Runge-Kutta de 4ª e 5ª ordem
 )
 
-# Extraindo os tempos (ou massas de catalisador)
-tempo = solucao.t
+# Extraindo as massas de catalisador
+massa_cat = solucao.t
 
 # ==========================
 #   GRÁFICO DE COMPOSIÇÃO
@@ -88,16 +99,16 @@ vazao_N2 = solucao.y[6]
 # Plotando os resultados
 plt.figure(figsize=(10, 6))
 
-plt.plot(tempo, vazao_CO, label="CO")
-plt.plot(tempo, vazao_H2, label="H₂")
-plt.plot(tempo, vazao_CH3OH, label="CH₃OH")
-plt.plot(tempo, vazao_CH4, label="CH₄")
-plt.plot(tempo, vazao_H2O, label="H₂O")
-plt.plot(tempo, vazao_CO2, label="CO₂")
-plt.plot(tempo, vazao_N2, label="N₂")
+plt.plot(massa_cat, vazao_CO, label="CO")
+plt.plot(massa_cat, vazao_H2, label="H₂")
+plt.plot(massa_cat, vazao_CH3OH, label="CH₃OH")
+plt.plot(massa_cat, vazao_CH4, label="CH₄")
+plt.plot(massa_cat, vazao_H2O, label="H₂O")
+plt.plot(massa_cat, vazao_CO2, label="CO₂")
+plt.plot(massa_cat, vazao_N2, label="N₂")
 
 # Personalização do gráfico
-plt.xlabel('Massa de Catalisador (g)', fontsize=12)
+plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
 plt.ylabel('Vazão Molar (mol/s)', fontsize=12)
 plt.title('Soluções da EDO para cada componente', fontsize=14)
 plt.legend()
@@ -109,11 +120,10 @@ plt.grid(True)
 pressao = solucao.y[8]
 # Plotando os resultados
 plt.figure(figsize=(10, 6))
-
-plt.plot(tempo, pressao, label="P [Pa]")
+plt.plot(massa_cat, pressao, label="P [Pa]")
 
 # Personalização do gráfico
-plt.xlabel('Massa de Catalisador (g)', fontsize=12)
+plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
 plt.ylabel('Pressão [Pa]', fontsize=12)
 plt.title('Perfil de Pressão', fontsize=14)
 plt.legend()
@@ -127,10 +137,10 @@ temperatura = solucao.y[7]
 # Plotando os resultados
 plt.figure(figsize=(10, 6))
 
-plt.plot(tempo, temperatura, label="T [K]")
+plt.plot(massa_cat, temperatura, label="T [K]")
 
 # Personalização do gráfico
-plt.xlabel('Massa de Catalisador (g)', fontsize=12)
+plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
 plt.ylabel('Temperatura [K]', fontsize=12)
 plt.title('Perfil de Temperatura', fontsize=14)
 plt.legend()
