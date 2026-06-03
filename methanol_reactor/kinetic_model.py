@@ -75,6 +75,8 @@ def cinetica(condicoes_iniciais, componentes):
     taxa_de_geração["T"] = dTdW
     taxa_de_geração["Q"] = dQdW
 
+    #print(taxa_de_geração)
+
     return taxa_de_geração
 
 def balanco_energia(componentes, temperatura, vazao_molar, r1, r2, r3):
@@ -100,10 +102,25 @@ def balanco_energia(componentes, temperatura, vazao_molar, r1, r2, r3):
 
     # calor específico da corrente - J/mol.K
     sum_FiCpi = sum(vazao_molar[k] * cp[k] for k in vazao_molar if k not in ("T", "P", "Q"))
-
+    #print(f"sumFi_Cpi= {sum_FiCpi}")
+    
     sum_dH = (r1*(-dH_r1))+(r2*(-dH_r2))+(r3*(-dH_r3))
-    Q = -sum_dH
+    #print(f"sum_dH = {sum_dH}")
+
+    # cálculo do Q
+    
+    densidade_cat = 3950.0 # kg/m³
+    porosidade = 0.55
+    U = 300.0  # Coeficiente Global Típico (W / m².K)
+    T_camisa = 503.0  # Temperatura constante da água em ebulição na camisa (K)
+    D_int = 0.0508  # Diâmetro interno do tubo (m) - 2 polegadas
+    dA_dW = 4.0 / (D_int * densidade_cat * (1 - porosidade))
+    Q = U * dA_dW * (T_camisa - temperatura)
     dTdW = (Q+sum_dH)/sum_FiCpi
+
+    #print(f"Q = {Q}")
+    #print(f"dTdW = {dTdW}")
+
     return dTdW, Q
 
 def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica):
