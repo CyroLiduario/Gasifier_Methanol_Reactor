@@ -112,7 +112,7 @@ def balanco_energia(componentes, temperatura, vazao_molar, r1, r2, r3):
     densidade_cat = 3950.0 # kg/m³
     porosidade = 0.55
     U = 300.0  # Coeficiente Global Típico (W / m².K)
-    T_camisa = 503.0  # Temperatura constante da água em ebulição na camisa (K)
+    T_camisa = 453  # Temperatura constante da água em ebulição na camisa (K)
     D_int = 0.0508  # Diâmetro interno do tubo (m) - 2 polegadas
     dA_dW = 4.0 / (D_int * densidade_cat * (1 - porosidade))
     Q = U * dA_dW * (T_camisa - temperatura)

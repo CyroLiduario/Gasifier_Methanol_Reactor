@@ -36,7 +36,7 @@ for componente in componentes:
 
 vazao_massica_total = sum(vazao_massica.values())
 
-massa_de_catalisador = (0, 25)
+massa_de_catalisador = (0, 35)
 condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5, 0]
 
 def sistema_edos(w, y, componentes):
