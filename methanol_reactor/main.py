@@ -26,7 +26,7 @@ vazao_molar = { componente: vazao_molar_comp*(1000/3600) for componente, vazao_m
 #print(vazao_molar)
 
 # vazao por tubo
-numero_de_tubos = 1500
+numero_de_tubos = 1000
 vazao_molar = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazao_molar.items()}
 #print(vazao_molar)
 
@@ -36,7 +36,7 @@ for componente in componentes:
 
 vazao_massica_total = sum(vazao_massica.values())
 
-massa_de_catalisador = (0, 20)
+massa_de_catalisador = (0, 25)
 condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5, 0]
 
 def sistema_edos(w, y, componentes):
@@ -191,3 +191,7 @@ diametro_externo = 0.06 # m - confirmar, considerei tubos de 2 in e e schedule 4
 pitch = 1.25*diametro_externo # distância entre os centros dos tubos considerando arranjo triangular 
 diametro_casco = pitch*((numero_de_tubos/0.315)**0.5)
 print(f"Diâmetro do Reator = {diametro_casco:.2f} m")
+
+#print(vazao_CH3OH)
+vazao_CH3OH_final = max(vazao_CH3OH) * numero_de_tubos * 3600 * componentes["CH3OH"]["MM"]*(1/1000) 
+print(f"Vazão Final de Matanol = {vazao_CH3OH_final:.2f} kg/h")
