@@ -1,5 +1,6 @@
 import json
 import matplotlib.pyplot as plt
+from math import pi
 from kinetic_model import cinetica
 from scipy.integrate import solve_ivp
 
@@ -25,7 +26,7 @@ vazao_molar = { componente: vazao_molar_comp*(1000/3600) for componente, vazao_m
 #print(vazao_molar)
 
 # vazao por tubo
-numero_de_tubos = 2000
+numero_de_tubos = 1500
 vazao_molar = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazao_molar.items()}
 #print(vazao_molar)
 
@@ -35,7 +36,7 @@ for componente in componentes:
 
 vazao_massica_total = sum(vazao_massica.values())
 
-massa_de_catalisador = (0, 50)
+massa_de_catalisador = (0, 20)
 condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5, 0]
 
 def sistema_edos(w, y, componentes):
@@ -165,3 +166,28 @@ plt.title('Perfil de Calor', fontsize=14)
 plt.legend()
 plt.grid(True)
 plt.show()
+
+# ==========================
+#   TAMANHO DO REATOR
+# ==========================
+
+# ALTURA
+area_secao_transversal = pi*(0.0508/2)**2  # m² - tubo de 2 in
+
+porosidade = 0.6 # suposta - Salles (2013)
+diametro_particula = 0.00311  # m - Salles (2013)
+densidade_particula_catalisador = 3950  # kg_cat/m³ - Salles (2013)
+
+densidade_do_leito = 3950 * (1-porosidade)
+volume = max(massa_cat)/densidade_do_leito
+altura_reator = volume/area_secao_transversal
+
+print(f"Altura do Reator = {altura_reator:.2f} m")
+
+# DIAMETRO
+# Usando um passe triangular
+
+diametro_externo = 0.06 # m - confirmar, considerei tubos de 2 in e e schedule 40 
+pitch = 1.25*diametro_externo # distância entre os centros dos tubos considerando arranjo triangular 
+diametro_casco = pitch*((numero_de_tubos/0.315)**0.5)
+print(f"Diâmetro do Reator = {diametro_casco:.2f} m")
