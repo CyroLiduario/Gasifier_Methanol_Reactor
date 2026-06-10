@@ -87,7 +87,7 @@ solucao = solve_ivp(
     t_span=(0, reator_params["L"]),
     y0=y0,
     args=(materiais, reator_params),
-    method='RK23',    # <-- Método idêntico ao ode23 do MATLAB
+    method='RK45',    # <-- Método idêntico ao ode23 do MATLAB
     max_step=0.05,    # <-- Força o Python a ler o reator a cada 5 cm no máximo
     dense_output=True
 )
