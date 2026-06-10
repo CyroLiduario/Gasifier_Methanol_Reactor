@@ -1,0 +1,139 @@
+{
+    "Gases": {
+        "H2O": {
+            "MM": 18.02,
+            "cp_coefs": [1.79, 0.107, 0.586, -0.2]
+        },
+        "O2": {
+            "MM": 32.00,
+            "cp_coefs": [0.88, -0.0001, 0.54, -0.33]
+        },
+        "CO": {
+            "MM": 28.01,
+            "cp_coefs": [1.1, -0.46, 1.0, -0.454]
+        },
+        "CO2": {
+            "MM": 44.01,
+            "cp_coefs": [0.45, 1.67, -1.27, 0.39]
+        },
+        "H2": {
+            "MM": 2.016,
+            "cp_coefs": [13.46, 4.6, -6.85, 3.79]
+        },
+        "CH4": {
+            "MM": 16.04,
+            "cp_coefs": [1.2, 3.25, 0.75, -0.71]
+        },
+        "N2": {
+            "MM": 28.01,
+            "cp_coefs": [1.11, -0.48, 0.96, -0.42]
+        },
+        "Tar": {
+            "MM": 96.1265,
+            "cp_coefs": [3.22, 0.0, 0.0, 0.0]
+        }
+    },
+    "Solidos": {
+        "Biomassa": {
+            "MM": 26.36,
+            "cp_coefs": [1.38, 0.0, 0.0]
+        },
+        "Char": {
+            "MM": 12.01,
+            "cp_coefs": [420.0, 2.09, 0.0001]
+        },
+        "Umidade": {
+            "MM": 18.02,
+            "cp_coefs": [4.2, 0.0, 0.0]
+        }
+    },
+    "Cinetica": {
+        "Reacoes": {
+            "secagem_m": {
+                "A": 5.13e10,
+                "E": 88000,
+                "dH": 2256000,
+                "unidade_dH": "J/kg"
+            },
+            "pirolise_p1": {
+                "A": 7.41e4,
+                "E": 83600,
+                "dH": -420000,
+                "unidade_dH": "J/kg",
+                "estequiometria": {"B": -1, "Char": 0.350, "H2O": 0.115, "O2": 0, "CO": 0.045, "CO2": 0.1, "H2": 0.002, "CH4": 0.003, "Tar": 0.385}
+            },
+            "g1_boudouard": {
+                "A": 36.16,
+                "E": 77390,
+                "dH": 172600,
+                "unidade_dH": "J/mol",
+                "estequiometria": {"H2O": 0, "O2": 0, "CO": 2, "CO2": -1, "H2": 0, "CH4": 0, "C": -1}
+            },
+            "g2_gasificacao_H2O": {
+                "A": 1.517e4,
+                "E": 121620,
+                "dH": 131400,
+                "unidade_dH": "J/mol",
+                "estequiometria": {"H2O": -1, "O2": 0, "CO": 1, "CO2": 0, "H2": 1, "CH4": 0, "C": -1}
+            },
+            "g3_gasificacao_H2": {
+                "A": 4.189e-3,
+                "E": 19210,
+                "dH": -74930,
+                "unidade_dH": "J/mol",
+                "estequiometria": {"H2O": 0, "O2": 0, "CO": 0, "CO2": 0, "H2": -2, "CH4": 1, "C": -1}
+            },
+            "g4_reformacao_CH4": {
+                "A": 7.301e-2,
+                "E": 36150,
+                "dH": 206000,
+                "unidade_dH": "J/mol",
+                "estequiometria": {"H2O": -1, "O2": 0, "CO": 1, "CO2": 0, "H2": 3, "CH4": -1, "C": 0}
+            },
+            "c1_oxidacao_CH4": {
+                "A": 29.71,
+                "E": 22028,
+                "dH": -805000,
+                "unidade_dH": "J/mol",
+                "estequiometria": {"H2O": 2, "O2": -2, "CO": 0, "CO2": 1, "H2": 0, "CH4": -1, "C": 0}
+            },
+            "c2_oxidacao_CO": {
+                "A": 1.215e6,
+                "E": 125582.9, 
+                "dH": -283030,
+                "unidade_dH": "J/mol",
+                "estequiometria": {"H2O": 0, "O2": -1, "CO": -2, "CO2": 2, "H2": 0, "CH4": 0, "C": 0}
+            },
+            "c3_oxidacao_H2": {
+                "A": 1.565e4,
+                "E": 83140.0,
+                "dH": -241800,
+                "unidade_dH": "J/mol",
+                "estequiometria": {"H2O": 2, "O2": -1, "CO": 0, "CO2": 0, "H2": -2, "CH4": 0, "C": 0}
+            },
+            "wg_water_gas_shift": {
+                "A": 2.78,
+                "E": 12600,
+                "dH": -41980,
+                "unidade_dH": "J/mol",
+                "estequiometria": {"H2O": -1, "O2": 0, "CO": -1, "CO2": 1, "H2": 1, "CH4": 0, "C": 0}
+            },
+            "p2_cracking_tar": {
+                "A": 4.28e6,
+                "E": 107000,
+                "dH": 42000,
+                "unidade_dH": "J/kg",
+                "estequiometria": {"H2O": 0, "O2": 0, "CO": 0.534, "CO2": 0.085, "H2": 0, "CH4": 0.211, "C": 0, "Tar": -1}
+            }
+        },
+        "Constantes_Equilibrio": {
+            "K1": {"A": -8900, "B": 9.1},
+            "K2": {"A": -7000, "B": 7.4},
+            "K3": {"A": 4400, "B": -5.5},
+            "K4": {"A": -11370, "B": 12.878},
+            "K5": {"A": 41837, "B": -0.0273},
+            "K6": {"A": 29573, "B": -9.1017},
+            "K7": {"A": 25587, "B": -5.5441}
+        }
+    }
+}
