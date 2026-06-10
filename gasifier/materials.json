@@ -52,7 +52,7 @@
             "secagem_m": {
                 "A": 5.13e10,
                 "E": 88000,
-                "dH": 2256000,
+                "dH": 2250000,
                 "unidade_dH": "J/kg"
             },
             "pirolise_p1": {
