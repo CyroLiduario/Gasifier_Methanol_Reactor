@@ -46,7 +46,17 @@ rho_M0 = rhom_s0 * YM
 
 # --- Fase Gasosa (Ar de Combustão) ---
 ER = 0.18 # Razão de equivalência
-X_g0 = [0.0, 0.21, 0.0, 0.0, 0.0, 0.0, 0.79, 0.0]
+
+# Defina a fração molar de vapor d'água que você quer na mistura de entrada
+fracao_vapor = 0.2 # Exemplo: 15% de vapor e 85% de ar
+
+fracao_ar = 1.0 - fracao_vapor
+fracao_O2 = 0.21 * fracao_ar
+fracao_N2 = 0.79 * fracao_ar
+
+# A ordem do vetor é: [H2O, O2, CO, CO2, H2, CH4, N2, Tar]
+X_g0 = [fracao_vapor, fracao_O2, 0.0, 0.0, 0.0, 0.0, fracao_N2, 0.0]
+#X_g0 = [0.0, 0.21, 0.0, 0.0, 0.0, 0.0, 0.79, 0.0]
 
 rhom_g0_ar = 101325.0 / (287.058 * 300.0) # Densidade padrão do ar (kg/m³)
 
@@ -120,7 +130,6 @@ plt.ylabel('Concentração (mol/m³)', fontsize=12)
 plt.title('Perfil de Concentração dos Gases', fontsize=14)
 plt.legend()
 plt.grid(True)
-plt.show()
 
 # Gráfico 2: Densidade dos Sólidos
 plt.figure(figsize=(10, 6))
@@ -132,7 +141,6 @@ plt.ylabel('Densidade (kg/m³)', fontsize=12)
 plt.title('Perfil de Consumo da Fase Sólida', fontsize=14)
 plt.legend()
 plt.grid(True)
-plt.show()
 
 # Gráfico 3: Perfil Térmico
 plt.figure(figsize=(10, 6))
