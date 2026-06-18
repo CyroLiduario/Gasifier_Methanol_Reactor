@@ -40,7 +40,7 @@ U_g0 = (51480.0 / 3600.0) / (rhom_g0_ar * area_secao) # Exemplo numérico de vel
 # 2. LOOP DE ANÁLISE DE SENSIBILIDADE
 # ==========================================
 # Vamos testar a fração de vapor de 0% (0.0) até 50% (0.5) em 11 passos (0%, 5%, 10%...)
-fracoes_vapor = np.linspace(0.0, 0.5, 11)
+fracoes_vapor = np.arange(0, 1.01, 0.01)
 
 # Listas para guardar os resultados do final do reator (z = L)
 H2_final = []

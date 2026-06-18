@@ -48,7 +48,7 @@ rho_M0 = rhom_s0 * YM
 ER = 0.18 # Razão de equivalência
 
 # Defina a fração molar de vapor d'água que você quer na mistura de entrada
-fracao_vapor = 0.2 # Exemplo: 15% de vapor e 85% de ar
+fracao_vapor = 0.20 # Exemplo: 15% de vapor e 85% de ar
 
 fracao_ar = 1.0 - fracao_vapor
 fracao_O2 = 0.21 * fracao_ar
