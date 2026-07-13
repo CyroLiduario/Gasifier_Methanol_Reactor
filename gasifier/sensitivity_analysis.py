@@ -95,6 +95,7 @@ for f_vap in fracoes_vapor:
     razao_H2_CO.append(razao)
 
 print("Varredura concluída!")
+print(f'Fração de Vapor para Maximizar CO/H2: {max(H2_final)}')
 
 # ==========================================
 # 3. PLOTAGEM DOS RESULTADOS
