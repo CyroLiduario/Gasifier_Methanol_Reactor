@@ -183,3 +183,80 @@ def gasifier_odes(z, y, materiais, reator_params):
     dydz[15] = (1.0 / denom_g) * (-(U_g*(T_g - T0)*somacpdCgdz + (T_g - T0)*somaCgcp*dydz[11]) - somaRDH_g + transporte["Qsg"] - transporte["Qgw"])
 
     return dydz
+
+def condicionar_syngas(C_gases_final, U_g_final, area_secao, pressao_metanol, temp_metanol):
+    """
+    Pega a saída do gaseificador, aplica um reator WGS ideal para atingir H2/CO = 2,
+    remove os condensáveis (Água e Alcatrão) e prepara a entrada do reator de metanol.
+    
+    C_gases_final: Vetor com as concentrações finais (mol/m³) [H2O, O2, CO, CO2, H2, CH4, N2, Tar]
+    U_g_final: Velocidade final do gás (m/s)
+    area_secao: Área da seção transversal do gaseificador (m²)
+    pressao_metanol: Pressão de entrada do reator de metanol (Pa)
+    temp_metanol: Temperatura de entrada do reator de metanol (K)
+    """
+    # 1. Calcular a vazão volumétrica final do gaseificador (m³/s)
+    vazao_volumetrica = U_g_final * area_secao
+    
+    # 2. Converter concentrações (mol/m³) para vazões molares (mol/s)
+    # Índices originais: 0:H2O, 1:O2, 2:CO, 3:CO2, 4:H2, 5:CH4, 6:N2, 7:Tar
+    F = {
+        "H2O": C_gases_final[0] * vazao_volumetrica,
+        "O2":  C_gases_final[1] * vazao_volumetrica,
+        "CO":  C_gases_final[2] * vazao_volumetrica,
+        "CO2": C_gases_final[3] * vazao_volumetrica,
+        "H2":  C_gases_final[4] * vazao_volumetrica,
+        "CH4": C_gases_final[5] * vazao_volumetrica,
+        "N2":  C_gases_final[6] * vazao_volumetrica,
+        "Tar": C_gases_final[7] * vazao_volumetrica
+    }
+    print("Vazões de saída do gaseificador - mol/s")
+    print(F)
+    print("--- BALANÇO DE MASSA WGS ---")
+    print(f"ANTES  -> CO: {F['CO']:.2f} mol/s | H2: {F['H2']:.2f} mol/s | H2/CO: {F['H2']/F['CO']:.2f}")
+    
+    # 3. Ajuste WGS para atingir a razão H2/CO = 2.0
+    # Reação: CO + H2O -> CO2 + H2
+    x = (2.0 * F["CO"] - F["H2"]) / 3.0
+    
+    # Verifica se há água suficiente para a reação (WGS precisa de H2O)
+    if x > F["H2O"]:
+        print("Aviso: Água insuficiente para atingir H2/CO = 2.0. Todo o H2O será consumido.")
+        x = F["H2O"]
+    elif x < 0:
+        # Se H2/CO já for maior que 2 (raro), a reação ocorre no sentido inverso
+        # CO2 + H2 -> CO + H2O
+        if abs(x) > F["CO2"]:
+            x = -F["CO2"]
+            
+    # Aplica a conversão
+    F["CO"]  -= x
+    F["H2O"] -= x
+    F["CO2"] += x
+    F["H2"]  += x
+    
+    # 4. Remoção de Condensáveis (Condensador/Filtro)
+    F["H2O"] = 0.0  # Assumindo remoção de 100% da água condensada
+    F["Tar"] = 0.0  # Assumindo remoção de todo o alcatrão
+    F["O2"]  = 0.0  # O2 traço consumido
+    
+    # 5. Montar o dicionário de entrada para o reator de metanol
+    # Inclui o metanol zerado que não existia no gaseificador
+    vazoes_metanol = {
+        "CO": F["CO"],
+        "H2": F["H2"],
+        "CH3OH": 0.0,
+        "CH4": F["CH4"],
+        "H2O": F["H2O"], # Será 0.0
+        "CO2": F["CO2"],
+        "N2": F["N2"],
+        "T": temp_metanol,
+        "P": pressao_metanol,
+        "Q": 0.0
+    }
+
+    print(f"REAÇÃO -> {x:.2f} mol/s de CO e H2O foram convertidos.")
+    print(f"DEPOIS -> CO: {F['CO']:.2f} mol/s | H2: {F['H2']:.2f} mol/s | H2/CO: {F['H2']/F['CO']:.2f}")
+    print("----------------------------")
+    
+    return vazoes_metanol

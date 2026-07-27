@@ -3,7 +3,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
-from kinetic_model import gasifier_odes
+from kinetic_model import gasifier_odes, condicionar_syngas
 
 # ==========================================
 # 1. CARREGAMENTO DOS MATERIAIS E CONSTANTES
@@ -163,3 +163,15 @@ ts = (1000.0 * Pd * reator_params["D"]) / ((2.0 * sigma_aco) - (1.2 * Pd))
 
 print(f"Cálculo Estrutural:")
 print(f"Espessura mínima requerida para a parede de aço = {ts:.2f} mm")
+
+# Extrai as variáveis do último ponto do gaseificador (z = L)
+C_gases_finais = y_vals[3:11, -1]
+Ug_final = y_vals[11, -1]
+
+# Exemplo de condições para o metanol (ajuste conforme seu projeto original)
+pressao_metanol = 60e5  # 60 bar
+temp_metanol = 503.0    # 230 °C
+
+# Prepara os dados!
+entrada_reator_metanol = condicionar_syngas(C_gases_finais, Ug_final, area_secao, pressao_metanol, temp_metanol)
+print(f"Razão H2/CO ajustada: {entrada_reator_metanol['H2'] / entrada_reator_metanol['CO']:.2f}")

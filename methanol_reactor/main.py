@@ -9,7 +9,20 @@ with open('./materiais.json', 'r') as materiais:
 
 # Confirmar se as vazões estão em kmol/h
 # Arbitrar um número de tubos (dividir a vazão total pelo número de tubos)
-vazao_molar = { #kmol/h
+
+vazao_molar = { #mol/s
+    "CO" : 138.0,
+    "H2" : 114.3,
+    "CH3OH" : 0,
+    "CH4" : 4.5,
+    "H2O" : 0,
+    "CO2" : 95.0,
+    "N2" : 351.4
+}
+
+vazao_molar = {component:vazao*(3600/1000) for component,vazao in vazao_molar.items()}
+
+""" vazao_molar = { #kmol/h
     "CO" : 3418.4,
     "H2" : 6788.6,
     "CH3OH" : 65,
@@ -17,7 +30,7 @@ vazao_molar = { #kmol/h
     "H2O" : 42.8,
     "CO2" : 42.8,
     "N2" : 3048.7
-}
+} """
 #print(vazao_molar)
 
 # transformando em mol/s
