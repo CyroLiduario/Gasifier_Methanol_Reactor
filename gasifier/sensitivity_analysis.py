@@ -46,6 +46,7 @@ fracoes_vapor = np.arange(0, 1.01, 0.01)
 H2_final = []
 CO_final = []
 razao_H2_CO = []
+frac = []
 
 print("Iniciando a varredura da fração de vapor...")
 
@@ -93,9 +94,16 @@ for f_vap in fracoes_vapor:
     # Calcular a razão H2 / CO
     razao = conc_H2_final / conc_CO_final if conc_CO_final > 0 else 0
     razao_H2_CO.append(razao)
+    frac.append([f_vap, razao, conc_H2_final, conc_CO_final])
+
+lista_maxima = max(frac, key=lambda x: x[1])
 
 print("Varredura concluída!")
-print(f'Fração de Vapor para Maximizar CO/H2: {max(H2_final)}')
+print(f'Fração de Vapor para Maximizar CO/H2: {max(H2_final)}; {lista_maxima}')
+print(f'''Fração de Vapor: {lista_maxima[0]}; 
+Razão H2/CO: {lista_maxima[1]}; 
+Concentração H2: {lista_maxima[2]}; 
+Concentração CO: {lista_maxima[3]}''')
 
 # ==========================================
 # 3. PLOTAGEM DOS RESULTADOS
