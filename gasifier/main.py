@@ -205,7 +205,7 @@ relatorio_integracao = {
 }
 
 # 4. Salvando o arquivo JSON na raiz do projeto
-caminho_arquivo = os.path.join(os.path.dirname(__file__), '..', 'saida_gaseificador.json')
+caminho_arquivo = os.path.join(os.path.dirname(__file__), 'saida_gaseificador.json')
 
 with open(caminho_arquivo, 'w', encoding='utf-8') as f:
     json.dump(relatorio_integracao, f, indent=4)
