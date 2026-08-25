@@ -1,0 +1,25 @@
+{
+    "Entrada_Gaseificador": {
+        "Temperatura_K": 300.0,
+        "Pressao_Pa": 303975.0,
+        "Vazao_Biomassa_kg_h": 20220.8,
+        "Vazao_Ar_kg_h": 19329.255400769063,
+        "Razao_Equivalencia_ER": 0.18,
+        "Vazao_Vapor_mol_s": 0.0,
+        "Vazao_Ar_mol_s": 556.1520123520534
+    },
+    "Saida_Gaseificador": {
+        "Temperatura_K": 1138.2899397506164,
+        "Pressao_Pa": 286623.11097489425,
+        "Vazoes_Molares_mol_s": {
+            "H2O": 27.921084905223765,
+            "O2": 1.7442536660750058e-15,
+            "CO": 129.4589528452922,
+            "CO2": 106.44912397358706,
+            "H2": 87.3879946566852,
+            "CH4": 1.7642215333840494,
+            "N2": 439.36010299191884,
+            "Tar": -5.433176654253171e-06
+        }
+    }
+}

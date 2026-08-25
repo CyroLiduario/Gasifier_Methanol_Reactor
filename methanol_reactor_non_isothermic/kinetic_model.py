@@ -85,9 +85,12 @@ def balanco_energia(componentes, temperatura, vazao_molar, r1, r2, r3):
     # ==============================
 
     # entalpias padrão de reação
-    dHp_r1 = (-90130) # reação de hidrogenação do monóxido de carbono - J/mol.K
-    dHp_r2 = 41470 # water gas shift - J/mol.K
-    dHp_r3 = (-48970) # hidrogenação do dióxido - J/mol.K
+    #(RAHMAN, 2012) - https://doi.org/10.31979/etd.tpdm-4bgg
+    dHp_r1 = (-91000) # reação de hidrogenação do monóxido de carbono - J/mol.K
+
+    #(WANG et al., 2023; RAHMAN, 2012) - https://doi.org/10.1016/j.matt.2023.05.022
+    dHp_r2 = 41200 # reversed water gas shift - J/mol.K
+    dHp_r3 = (-49500) # hidrogenação do dióxido - J/mol.K
 
     #   capacidades caloríficas por reação - J/mol.K
     cp = capacidade_calorífica(componentes, temperatura)

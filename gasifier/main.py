@@ -1,3 +1,4 @@
+import os
 import json
 import math
 import numpy as np
@@ -48,15 +49,14 @@ rho_M0 = rhom_s0 * YM
 ER = 0.18 # Razão de equivalência
 
 # Defina a fração molar de vapor d'água que você quer na mistura de entrada
-fracao_vapor = 0.20 # Exemplo: 15% de vapor e 85% de ar
-
-fracao_ar = 1.0 - fracao_vapor
-fracao_O2 = 0.21 * fracao_ar
-fracao_N2 = 0.79 * fracao_ar
+#fracao_vapor = 0 # Exemplo: 15% de vapor e 85% de ar
+#fracao_ar = 1.0 - fracao_vapor
+#fracao_O2 = 0.21 * fracao_ar
+#fracao_N2 = 0.79 * fracao_ar
 
 # A ordem do vetor é: [H2O, O2, CO, CO2, H2, CH4, N2, Tar]
-X_g0 = [fracao_vapor, fracao_O2, 0.0, 0.0, 0.0, 0.0, fracao_N2, 0.0]
-#X_g0 = [0.0, 0.21, 0.0, 0.0, 0.0, 0.0, 0.79, 0.0]
+#X_g0 = [fracao_vapor, fracao_O2, 0.0, 0.0, 0.0, 0.0, fracao_N2, 0.0]
+X_g0 = [0.0, 0.21, 0.0, 0.0, 0.0, 0.0, 0.79, 0.0]
 
 rhom_g0_ar = 101325.0 / (287.058 * 300.0) # Densidade padrão do ar (kg/m³)
 
@@ -163,3 +163,51 @@ ts = (1000.0 * Pd * reator_params["D"]) / ((2.0 * sigma_aco) - (1.2 * Pd))
 
 print(f"Cálculo Estrutural:")
 print(f"Espessura mínima requerida para a parede de aço = {ts:.2f} mm")
+
+# ==========================================
+# 6. GERAÇÃO DO RELATÓRIO DE SAÍDA (JSON)
+# ==========================================
+
+# 1. Cálculo das vazões molares de saída (mol/s)
+# Q_out (m³/s) = U_g_out (m/s) * area_secao (m²)
+U_g_out = Ug_vals[-1]
+Q_out = U_g_out * area_secao 
+
+chaves_gases = ["H2O", "O2", "CO", "CO2", "H2", "CH4", "N2", "Tar"]
+vazoes_saida_mol_s = {}
+
+for i, comp in enumerate(chaves_gases):
+    # C_gases[i][-1] está em mol/m³. Multiplicando por m³/s temos mol/s
+    vazoes_saida_mol_s[comp] = float(C_gases[i][-1] * Q_out)
+
+# 2. Cálculo das vazões molares de entrada de gás (mol/s) para o relatório
+# O índice 0 é H2O, 1 é O2, e 6 é N2 no seu array X_g0 / C_g0
+Q_in = U_g0 * area_secao
+vazao_vapor_in_mol_s = float(C_g0[0] * Q_in)
+vazao_ar_in_mol_s = float((C_g0[1] + C_g0[6]) * Q_in) # Somando O2 e N2
+
+# 3. Estruturação do Dicionário de Relatório
+relatorio_integracao = {
+    "Entrada_Gaseificador": {
+        "Temperatura_K": float(T0),
+        "Pressao_Pa": float(P0),
+        "Vazao_Biomassa_kg_h": float(F_s),
+        "Vazao_Ar_kg_h": float(F_g),
+        "Razao_Equivalencia_ER": float(ER),
+        "Vazao_Vapor_mol_s": vazao_vapor_in_mol_s,
+        "Vazao_Ar_mol_s": vazao_ar_in_mol_s
+    },
+    "Saida_Gaseificador": {
+        "Temperatura_K": float(Tg_vals[-1]),
+        "Pressao_Pa": float(P_vals[-1]),
+        "Vazoes_Molares_mol_s": vazoes_saida_mol_s
+    }
+}
+
+# 4. Salvando o arquivo JSON na raiz do projeto
+caminho_arquivo = os.path.join(os.path.dirname(__file__), '..', 'saida_gaseificador.json')
+
+with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+    json.dump(relatorio_integracao, f, indent=4)
+
+print(f"\nRelatório de integração gerado com sucesso em: {caminho_arquivo}")

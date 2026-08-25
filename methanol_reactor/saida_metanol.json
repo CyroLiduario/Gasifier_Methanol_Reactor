@@ -1,0 +1,39 @@
+{
+    "Parametros_Reator_Global": {
+        "Numero_de_Tubos": 1000,
+        "Massa_Catalisador_Por_Tubo_kg": 25.0,
+        "Altura_Estimada_m": 7.806666302966714,
+        "Diametro_Casco_Estimado_m": 4.225771273642583
+    },
+    "Entrada_Reator_Metanol": {
+        "Temperatura_K": 503.0,
+        "Pressao_Pa": 6000000.0,
+        "Vazoes_Molares_Por_Tubo_mol_s": {
+            "CO": 0.9495555555555557,
+            "H2": 1.8857222222222223,
+            "CH3OH": 0.018055555555555557,
+            "CH4": 0.08419444444444446,
+            "H2O": 0.01188888888888889,
+            "CO2": 0.01188888888888889,
+            "N2": 0.8468611111111111
+        }
+    },
+    "Saida_Reator_Metanol": {
+        "Temperatura_K": 503.0,
+        "Pressao_Pa": 5765604.001938368,
+        "Vazoes_Molares_Por_Tubo_mol_s": {
+            "CO": 0.3726789376553817,
+            "H2": 0.7499863133161909,
+            "CH3OH": 0.5889263978242911,
+            "CH4": 0.08419444444444446,
+            "H2O": 0.005883113257450137,
+            "CO2": 0.01789466452032763,
+            "N2": 0.8468611111111111
+        },
+        "Performance_Global": {
+            "Conversao_CO_percent": 60.752276633531075,
+            "Conversao_CO2_percent": -50.51586979714827,
+            "Producao_Metanol_kg_h": 67929.12643064505
+        }
+    }
+}
