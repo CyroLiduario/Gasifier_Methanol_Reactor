@@ -1,51 +1,54 @@
-import math
-from thermodynamic import capacidade_calorifica_gases, derivada_capacidade_calorifica_gases
+import numpy as np
 
-def reformer_odes(W, y, materiais, reator_params):
-    # y = [F_CO, F_H2, F_CH4, F_H2O, F_CO2, F_N2, T, P] (Vazões molares, Temp, Pressão)
-    F_CO, F_H2, F_CH4, F_H2O, F_CO2, F_N2, T, P = y
+def cinetica_wgs(y, P_total_bar):
+    """
+    Avalia as taxas de reação LHHW para o reator WGS.
+    """
+    F_CO, F_H2, F_CH4, F_H2O, F_CO2, F_N2, T = y
     
-    # Constantes
-    R = 8.314 # J/mol.K
-    
-    # 1. Frações Molares e Pressões Parciais (kPa)
     F_total = F_CO + F_H2 + F_CH4 + F_H2O + F_CO2 + F_N2
-    P_kPa = P / 1000.0 # O modelo de Ramos usa kPa ou bar dependendo do K_eq, verifique no artigo
     
-    p_CO  = (F_CO / F_total) * P_kPa
-    p_H2  = (F_H2 / F_total) * P_kPa
-    p_CH4 = (F_CH4 / F_total) * P_kPa
-    p_H2O = (F_H2O / F_total) * P_kPa
-    p_CO2 = (F_CO2 / F_total) * P_kPa
+    # Pressões parciais (bar)
+    p = {
+        "CO":  (F_CO / F_total) * P_total_bar,
+        "H2":  max(1e-6, (F_H2 / F_total) * P_total_bar), # Evita divisão por zero
+        "CH4": (F_CH4 / F_total) * P_total_bar,
+        "H2O": (F_H2O / F_total) * P_total_bar,
+        "CO2": (F_CO2 / F_total) * P_total_bar
+    }
     
-    # 2. Constantes Cinéticas (k) e de Equilíbrio (K_eq) de Ramos et al.
-    # Lembre-se de verificar as unidades da energia de ativação (se kJ/mol, multiplique R por 10^-3)
-    k_DR = 70.99e-3 * math.exp(-77.82 / (0.008314 * T))
-    K_DR = 6.780e18 * math.exp(-31230 / T)
+    Rg = 8.314 # J/(mol.K)
     
-    k_SR = 85.77e-9 * math.exp(-74.72 / (0.008314 * T))
-    K_SR = 1.198e17 * math.exp(-26830 / T)
+    # 1. Constante Cinética (k) e de Equilíbrio (K_eq) para WGS
+    # CO + H2O <=> CO2 + H2
+    k_wgs = 1.955e6 * np.exp(-67130 / (Rg * T))
+    K_eq_wgs = np.exp(4400 / T - 4.036)
     
-    k_WGS = 149.22e-3 * math.exp(-34.26 / (0.008314 * T))
-    K_WGS = 10**((2073 / T) - 2.029)
+    # 2. Constantes de Adsorção (K)
+    K_CO  = 8.23e-5 * np.exp(70650 / (Rg * T))
+    K_H2  = 6.12e-9 * np.exp(82900 / (Rg * T))
+    K_CH4 = 6.65e-4 * np.exp(38280 / (Rg * T))
+    K_H2O = 1.77e5  * np.exp(-88680 / (Rg * T))
     
-    # 3. Taxas de Reação (r = k * Força Motriz)
-    # Proteção contra divisão por zero e pressões negativas
-    r_DR = k_DR * p_CH4 * (1 - ((p_CO**2 * p_H2**2) / max(1e-10, p_CH4 * p_CO2 * K_DR)))
-    r_SR = k_SR * p_CH4 * (1 - ((p_CO * p_H2**3) / max(1e-10, p_CH4 * p_H2O * K_SR)))
-    r_WGS = k_WGS * ( (p_CO * p_H2O / max(1e-10, p_H2)) - (p_CO2 / K_WGS) )
+    # 3. Denominador da Força Motriz (Adsorção Competitiva em Sítio Ativo)
+    DEN = 1.0 + K_CO*p["CO"] + K_H2*p["H2"] + K_CH4*p["CH4"] + (K_H2O * p["H2O"] / p["H2"])
     
-    # 4. Balanço de Massa (dF/dW)
-    dF_CO_dW  = 2*r_DR + r_SR - r_WGS
-    dF_H2_dW  = 2*r_DR + 3*r_SR + r_WGS
-    dF_CH4_dW = -r_DR - r_SR
-    dF_H2O_dW = -r_SR - r_WGS
-    dF_CO2_dW = -r_DR + r_WGS
-    dF_N2_dW  = 0.0
+    # 4. Taxa de Reação WGS (mol / kg_cat . s)
+    r_wgs = (k_wgs / p["H2"]) * (p["CO"]*p["H2O"] - (p["H2"] * p["CO2"] / K_eq_wgs)) / (DEN**2)
     
-    # 5. Balanço de Energia (dT/dW) e Perda de Carga (dP/dW)
-    # (Inserir os cálculos baseados na entalpia de reação e Cp, similar ao metanol)
-    dT_dW = 0.0 # Substituir pelo balanço real
-    dP_dW = 0.0 # Substituir pela equação de Ergun
+    # 5. Balanço Estequiométrico das Espécies (mol / kg_cat . s)
+    taxa_geracao = {
+        "CO":  -r_wgs,
+        "H2O": -r_wgs,
+        "CO2":  r_wgs,
+        "H2":   r_wgs,
+        "CH4":  0.0,
+        "N2":   0.0 
+    }
     
-    return [dF_CO_dW, dF_H2_dW, dF_CH4_dW, dF_H2O_dW, dF_CO2_dW, dF_N2_dW, dT_dW, dP_dW]
+    # Entalpia da reação WGS (~ -41.2 kJ/mol a -41.98 kJ/mol)
+    dH_wgs = -41150.0  # J/mol (Reação exotérmica)
+    
+    taxa_geracao["calor"] = -(r_wgs * dH_wgs) # Calor liberado: J / (kg_cat . s)
+    
+    return taxa_geracao

@@ -10,21 +10,40 @@ with open('./materiais.json', 'r') as materiais:
 
 # Confirmar se as vazões estão em kmol/h
 # Arbitrar um número de tubos (dividir a vazão total pelo número de tubos)
-vazao_molar = { #kmol/h
-    "CO" : 3418.4,
-    "H2" : 6788.6,
-    "CH3OH" : 65,
-    "CH4" : 303.1,
-    "H2O" : 42.8,
-    "CO2" : 42.8,
-    "N2" : 3048.7
-}
-#print(vazao_molar)
+"""
+    vazao_molar = { #kmol/h
+        "CO" : 3418.4,
+        "H2" : 6788.6,
+        "CH3OH" : 65,
+        "CH4" : 303.1,
+        "H2O" : 42.8,
+        "CO2" : 42.8,
+        "N2" : 3048.7
+    }
+"""
 
 # transformando em mol/s
 
-vazao_molar = { componente: vazao_molar_comp*(1000/3600) for componente, vazao_molar_comp in vazao_molar.items()}
-#print(vazao_molar)
+#vazao_molar = { componente: vazao_molar_comp*(1000/3600) for componente, vazao_molar_comp in vazao_molar.items()}
+
+caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'gasifier', 'saida_gaseificador.json')
+
+with open(caminho_saida_gas, 'r', encoding='utf-8') as f:
+    dados_gaseificador = json.load(f)
+
+vazoes_brutas = dados_gaseificador["Saida_Gaseificador"]["Vazoes_Molares_mol_s"]
+
+# 3. Mapeamento das correntes (mol/s globais)
+# A ordem de inserção aqui garante a ordem correta para a EDO
+vazao_molar = {
+    "CO": vazoes_brutas.get("CO", 0.0),
+    "H2": vazoes_brutas.get("H2", 0.0),
+    "CH3OH": 0.0,  # O gaseificador não produz metanol
+    "CH4": vazoes_brutas.get("CH4", 0.0),
+    "H2O": vazoes_brutas.get("H2O", 0.0),
+    "CO2": vazoes_brutas.get("CO2", 0.0),
+    "N2": vazoes_brutas.get("N2", 0.0)
+}
 
 # vazao por tubo
 numero_de_tubos = 1000

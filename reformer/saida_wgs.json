@@ -1,0 +1,19 @@
+{
+    "Alimentacao": {
+        "Vapor_Adicionado_mol_s": 30.0,
+        "Razao_H2_CO_Entrada": 0.6425202156334232,
+        "Temperatura_Entrada_K": 623.15
+    },
+    "Saida": {
+        "Vazoes_Molares": {
+            "CO": 12.294276576973383,
+            "H2": 36.45572342302662,
+            "CH4": 0.8,
+            "H2O": 16.33427657697337,
+            "CO2": 25.255723423026634,
+            "N2": 38.86
+        },
+        "Razao_H2_CO_Saida": 2.965259744628368,
+        "Temperatura_Saida_K": 791.5446220688285
+    }
+}

@@ -3,19 +3,29 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
-from kinetic_model import reformer_odes
+from kinetic_model import cinetica_wgs
 
 # ==========================================
-# 1. LEITURA DOS DADOS DO GASEIFICADOR
+# 1. LEITURA DOS DADOS DE SAÍDA DO GASEIFICADOR
 # ==========================================
 caminho_entrada = os.path.join(os.path.dirname(__file__), '../gasifier/', 'saida_gaseificador.json')
-with open(caminho_entrada, 'r', encoding='utf-8') as f:
-    dados_in = json.load(f)
+
+try:
+    with open(caminho_entrada, 'r', encoding='utf-8') as f:
+        dados_in = json.load(f)
+    # Ajuste as chaves abaixo conforme a estrutura exata do seu 'saida_gaseificador.json'
+    vazoes_in = dados_in.get("Vazoes_Molares_Saida", {"CO": 29.68, "H2": 19.07, "CO2": 7.87, "CH4": 0.8, "H2O": 3.72, "N2": 38.86})
+    T_in_gasifier = dados_in.get("Temperatura_K", 1073.15)
+    P_bar = dados_in.get("Pressao_bar", 25.0)
+except FileNotFoundError:
+    print("Aviso: 'saida_gaseificador.json' não encontrado. Utilizando dados padrão do syngas.")
+    vazoes_in = {"CO": 29.68, "H2": 19.07, "CO2": 7.87, "CH4": 0.8, "H2O": 3.72, "N2": 38.86}
+    T_in_gasifier = 950.0 + 273.15
+    P_bar = 25.0
 
 # ==========================================
 # 2. CARREGAMENTO DOS MATERIAIS E CONSTANTES
 # ==========================================
-# Reaproveitando o dicionário de materiais do gaseificador (se necessário pela cinética)
 caminho_materiais = os.path.join(os.path.dirname(__file__), '..', 'gasifier', 'materials.json')
 try:
     with open(caminho_materiais, 'r', encoding='utf-8') as f:
@@ -23,123 +33,119 @@ try:
 except FileNotFoundError:
     materiais = {} 
 
-# Parâmetros Iniciais do Bi-Reformer (Estimativa para o modelo numérico)
-reator_params = {
-    "W_cat": 100.0,   # Massa de catalisador no leito (kg) - Variável de integração
-    "D": 1.0,         # Diâmetro do reator (m)
-    "porosidade": 0.4
-}
+# ==========================================
+# 3. PREPARAÇÃO DA ALIMENTAÇÃO DO REATOR WGS
+# ==========================================
+# Injeção de vapor d'água para corrigir a razão H2:CO do waste-derived syngas
+vazao_vapor_adicional = 30.0  # mol/s (Ajuste este valor no controle do seu processo)
+vazoes_in["H2O"] += vazao_vapor_adicional
+
+# A temperatura de entrada no reator HTS (High-Temperature Shift) costuma ser menor que a do gaseificador
+T_in_wgs = 350.0 + 273.15  # Típico para início de leito HTS (~350°C a 400°C)
+
+Massa_Catalisador_Total = 8000.0 # kg de catalisador
+
+# Vetor de estado [CO, H2, CH4, H2O, CO2, N2, T]
+y0 = [
+    vazoes_in.get("CO", 0), 
+    vazoes_in.get("H2", 0), 
+    vazoes_in.get("CH4", 0), 
+    vazoes_in.get("H2O", 0), 
+    vazoes_in.get("CO2", 0), 
+    vazoes_in.get("N2", 0), 
+    T_in_wgs
+]
 
 # ==========================================
-# 3. CONDIÇÕES INICIAIS (W = 0)
+# 4. DEFINIÇÃO DO SISTEMA DE EDOs
 # ==========================================
-saida_gas = dados_in["Saida_Gaseificador"]
-vazoes = saida_gas["Vazoes_Molares_mol_s"]
-
-T0 = saida_gas["Temperatura_K"]
-P0 = saida_gas["Pressao_Pa"]
-
-# Vazões Iniciais (mol/s) importadas do balanço exato do gaseificador
-F_CO0 = vazoes.get("CO", 0.0)
-F_H20 = vazoes.get("H2", 0.0)
-F_H2O0 = vazoes.get("H2O", 0.0)
-F_CO20 = vazoes.get("CO2", 0.0)
-F_N20 = vazoes.get("N2", 0.0)
-
-# --- VARIÁVEL DE MAKE-UP DE METANO ---
-makeup_CH4 = 100.0  # Zerado para teste do cenário puramente acoplado
-F_CH40 = vazoes.get("CH4", 0.0) + makeup_CH4
-
-# Vetor de estado inicial: [F_CO, F_H2, F_CH4, F_H2O, F_CO2, F_N2, T, P]
-y0 = [F_CO0, F_H20, F_CH40, F_H2O0, F_CO20, F_N20, T0, P0]
+def balanco_reator_wgs(w, y):
+    F_CO, F_H2, F_CH4, F_H2O, F_CO2, F_N2, T = y
+    
+    # Obter taxas da cinética
+    taxa = cinetica_wgs(y, P_bar)
+    
+    # Capacidades caloríficas simplificadas (J/mol.K)
+    Cp = {"CO": 30.0, "H2": 29.0, "CH4": 50.0, "H2O": 36.0, "CO2": 45.0, "N2": 29.0}
+    sum_FCp = (F_CO*Cp["CO"] + F_H2*Cp["H2"] + F_CH4*Cp["CH4"] + 
+               F_H2O*Cp["H2O"] + F_CO2*Cp["CO2"] + F_N2*Cp["N2"])
+    
+    # Balanço de energia adiabático (Q = 0)
+    dT_dw = taxa["calor"] / sum_FCp
+    
+    return [
+        taxa["CO"],
+        taxa["H2"],
+        taxa["CH4"],
+        taxa["H2O"],
+        taxa["CO2"],
+        taxa["N2"],
+        dT_dw
+    ]
 
 # ==========================================
-# 4. INTEGRAÇÃO NUMÉRICA (SOLVE_IVP)
+# 5. INTEGRAÇÃO NUMÉRICA
 # ==========================================
-print("Iniciando a integração do Bi-Reformer...")
-
+print("Integrando reator WGS (correção H2:CO)...")
 solucao = solve_ivp(
-    fun=reformer_odes,
-    t_span=(0, reator_params["W_cat"]),
-    y0=y0,
-    args=(materiais, reator_params),
-    method='RK45',    # Mantido em RK45 para avaliação preliminar do solver
+    balanco_reator_wgs,
+    (0, Massa_Catalisador_Total),
+    y0,
+    method='BDF',
     dense_output=True
 )
 
-print("Integração do Reformer concluída!")
+massa_w = solucao.t
+y_out = solucao.y
 
-W_vals = solucao.t
-F_CO_vals = solucao.y[0]
-F_H2_vals = solucao.y[1]
-F_CH4_vals = solucao.y[2]
-F_H2O_vals = solucao.y[3]
-F_CO2_vals = solucao.y[4]
-F_N2_vals = solucao.y[5]
-T_vals = solucao.y[6]
-P_vals = solucao.y[7]
+F_CO_out, F_H2_out, F_CH4_out, F_H2O_out, F_CO2_out, F_N2_out, T_out = y_out[:, -1]
+H2_CO_in = y0[1] / y0[0]
+H2_CO_out = F_H2_out / F_CO_out
 
 # ==========================================
-# 5. EXTRAÇÃO DE RESULTADOS E PLOTAGEM
+# 6. EXPORTAÇÃO DOS RESULTADOS (JSON)
 # ==========================================
-# Cálculo contínuo do Módulo Estequiométrico (S) ao longo do leito catalítico
-S_vals = []
-for h2, co2, co in zip(F_H2_vals, F_CO2_vals, F_CO_vals):
-    denom = co + co2
-    S = (h2 - co2) / denom if denom > 0 else 0
-    S_vals.append(S)
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-
-# Gráfico 1: Perfil Molar de Consumo e Geração
-ax1.plot(W_vals, F_H2_vals, 'cyan', label='H₂', linewidth=2)
-ax1.plot(W_vals, F_CO_vals, 'red', label='CO', linewidth=2)
-ax1.plot(W_vals, F_CH4_vals, 'orange', label='CH₄', linewidth=2)
-ax1.plot(W_vals, F_CO2_vals, 'magenta', label='CO₂', linewidth=2)
-ax1.set_xlabel('Massa de Catalisador, W (kg)', fontsize=12)
-ax1.set_ylabel('Vazão Molar (mol/s)', fontsize=12)
-ax1.set_title('Perfil de Conversão no Bi-Reformer', fontsize=14)
-ax1.legend()
-ax1.grid(True)
-
-# Gráfico 2: Adequação para o Reator de Metanol
-ax2.plot(W_vals, S_vals, 'purple', linewidth=2)
-ax2.axhline(y=2.0, color='green', linestyle='--', label='Alvo (S = 2.0)')
-ax2.set_xlabel('Massa de Catalisador, W (kg)', fontsize=12)
-ax2.set_ylabel('Módulo Estequiométrico (S)', fontsize=12)
-ax2.set_title('Correção da Proporção do Syngas', fontsize=14)
-ax2.legend()
-ax2.grid(True)
-
-plt.tight_layout()
-plt.show()
-
-# ==========================================
-# 6. GERAÇÃO DO RELATÓRIO DE SAÍDA (JSON)
-# ==========================================
-relatorio_reformer = {
-    "Entrada_Reformer": {
-        "Temperatura_K": float(T0),
-        "Pressao_Pa": float(P0),
-        "Vazao_Makeup_CH4_mol_s": float(makeup_CH4)
+relatorio = {
+    "Alimentacao": {
+        "Vapor_Adicionado_mol_s": vazao_vapor_adicional,
+        "Razao_H2_CO_Entrada": H2_CO_in,
+        "Temperatura_Entrada_K": T_in_wgs
     },
-    "Saida_Reformer": {
-        "Temperatura_K": float(T_vals[-1]),
-        "Pressao_Pa": float(P_vals[-1]),
-        "Modulo_S_Final": float(S_vals[-1]),
-        "Vazoes_Molares_mol_s": {
-            "CO": float(F_CO_vals[-1]),
-            "H2": float(F_H2_vals[-1]),
-            "CH4": float(F_CH4_vals[-1]),
-            "H2O": float(F_H2O_vals[-1]),
-            "CO2": float(F_CO2_vals[-1]),
-            "N2": float(F_N2_vals[-1])
-        }
+    "Saida": {
+        "Vazoes_Molares": {
+            "CO": F_CO_out, "H2": F_H2_out, "CH4": F_CH4_out,
+            "H2O": F_H2O_out, "CO2": F_CO2_out, "N2": F_N2_out
+        },
+        "Razao_H2_CO_Saida": H2_CO_out,
+        "Temperatura_Saida_K": T_out
     }
 }
 
-caminho_saida = os.path.join(os.path.dirname(__file__), 'saida_reformer.json')
+caminho_saida = os.path.join(os.path.dirname(__file__), 'saida_wgs.json')
 with open(caminho_saida, 'w', encoding='utf-8') as f:
-    json.dump(relatorio_reformer, f, indent=4)
+    json.dump(relatorio, f, indent=4)
 
-print(f"\nRelatório do Reformer gerado com sucesso em: {caminho_saida}")
+print(f"Sucesso! Relatório salvo em: {caminho_saida}")
+print(f"Razão H2:CO ajustada de {H2_CO_in:.2f} para {H2_CO_out:.2f}")
+
+# ==========================================
+# 7. VISUALIZAÇÃO DOS PERFIS
+# ==========================================
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+ax1.plot(massa_w, y_out[0], label='CO', color='red')
+ax1.plot(massa_w, y_out[1], label='H₂', color='blue')
+ax1.plot(massa_w, y_out[3], label='H₂O', color='cyan')
+ax1.plot(massa_w, y_out[4], label='CO₂', color='gray')
+ax1.set_xlabel('Massa de Catalisador (kg)')
+ax1.set_ylabel('Vazão Molar (mol/s)')
+ax1.legend(loc='center left')
+
+ax2 = ax1.twinx()
+ax2.plot(massa_w, y_out[6] - 273.15, label='Temperatura (°C)', color='orange', linestyle='--')
+ax2.set_ylabel('Temperatura (°C)')
+ax2.legend(loc='center right')
+
+plt.title('Perfil do Reator WGS (Alimentado pelo Gaseificador)')
+plt.grid(True)
+plt.show()
