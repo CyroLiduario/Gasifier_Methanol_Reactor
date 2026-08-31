@@ -36,13 +36,13 @@ vazoes_brutas = dados_gaseificador["Saida_Gaseificador"]["Vazoes_Molares_mol_s"]
 # 3. Mapeamento das correntes (mol/s globais)
 # A ordem de inserção aqui garante a ordem correta para a EDO
 vazao_molar = {
-    "CO": vazoes_brutas.get("CO", 0.0),
-    "H2": vazoes_brutas.get("H2", 0.0),
+    "CO": vazoes_brutas.get("CO"),
+    "H2": vazoes_brutas.get("H2"),
     "CH3OH": 0.0,  # O gaseificador não produz metanol
-    "CH4": vazoes_brutas.get("CH4", 0.0),
-    "H2O": vazoes_brutas.get("H2O", 0.0),
-    "CO2": vazoes_brutas.get("CO2", 0.0),
-    "N2": vazoes_brutas.get("N2", 0.0)
+    "CH4": vazoes_brutas.get("CH4"),
+    "H2O": vazoes_brutas.get("H2O"),
+    "CO2": vazoes_brutas.get("CO2"),
+    "N2": vazoes_brutas.get("N2")
 }
 
 # vazao por tubo
