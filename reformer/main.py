@@ -9,7 +9,8 @@ from kinetic_model import cinetica_reformer
 # ==========================================
 # 1. LEITURA DOS DADOS DE SAÍDA DO GASEIFICADOR
 # ==========================================
-
+quantidade_reatores = 5
+diametro_reator = 2.5
 caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'gasifier', 'saida_gaseificador.json')
 
 with open(caminho_saida_gas, 'r', encoding='utf-8') as f:
@@ -31,23 +32,23 @@ P_in = saida["Pressao_Pa"]
 with open('./reformer/materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
-
 # ==========================================
 # 3. PREPARAÇÃO DA ALIMENTAÇÃO DO REATOR WGS
 # ==========================================
 # Injeção de vapor d'água para corrigir a razão H2:CO do waste-derived syngas
 #TODO: VERIFICAR A MELHOR FORMA DE FAZER A ADIÇÃO, QUERO FAZER UMA ANÁLISE DE SENSIBILIDADE APÓS ISSO
-vazao_vapor_adicional = 350  # mol/s
+vazao_vapor_adicional = 600  # mol/s
 vazoes_in["H2O"] = vazoes_in["H2O"] + vazao_vapor_adicional
 
 # Injeção de CH4 adicional
-vazao_CH4_adicional = 350 # mol/s
+vazao_CH4_adicional = 600 # mol/s
 vazoes_in["CH4"] = vazoes_in["CH4"] + vazao_CH4_adicional
 
-numero_de_tubos = 1
-vazoes_in = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazoes_in.items()}
+vazoes_in = {componente: vazao_molar_comp/quantidade_reatores for componente, vazao_molar_comp in vazoes_in.items()}
+#numero_de_tubos = 1
+#vazoes_in = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazoes_in.items()}
 
-Massa_Catalisador_Total = (0, 25) # kg de catalisador
+Massa_Catalisador_Total = (0, 1000) # kg de catalisador
 
 # Vetor de estado [CO, H2, CH4, H2O, CO2, N2, T]
 y0 = [
@@ -65,7 +66,7 @@ y0 = [
 # ==========================================
 # 4. DEFINIÇÃO DO SISTEMA DE EDOs
 # ==========================================
-def sistema_edos(w, y, componentes):
+def sistema_edos(w, y, componentes, diametro_reator):
     # y representa as variáveis dependentes (vazão molar, por exemplo)
     # y é um vetor com as quantidades de cada componente no sistema
     condicoes_iniciais = {
@@ -81,7 +82,7 @@ def sistema_edos(w, y, componentes):
     }
     
     # Chama a função de cinética que calcula as taxas de geração
-    taxa_de_geracao = cinetica_reformer(condicoes_iniciais, componentes)
+    taxa_de_geracao = cinetica_reformer(condicoes_iniciais, componentes, diametro_reator)
 
     # Converte o dicionário de taxas de geração em uma lista de derivadas
     dy_dt = [
@@ -106,7 +107,7 @@ solucao = solve_ivp(
     sistema_edos,
     Massa_Catalisador_Total,
     y0,
-    args=(componentes,),
+    args=(componentes,diametro_reator),
     method='RK45'
 )
 
@@ -131,12 +132,12 @@ relatorio = {
     },
     "Saida": {
         "Vazoes_Molares": {
-            "CO": float(F_CO_out), 
-            "H2": float(F_H2_out), 
-            "CH4": float(F_CH4_out),
-            "H2O": float(F_H2O_out), 
-            "CO2": float(F_CO2_out), 
-            "N2": float(F_N2_out)
+            "CO": float(F_CO_out*quantidade_reatores), 
+            "H2": float(F_H2_out*quantidade_reatores), 
+            "CH4": float(F_CH4_out*quantidade_reatores),
+            "H2O": float(F_H2O_out*quantidade_reatores), 
+            "CO2": float(F_CO2_out*quantidade_reatores), 
+            "N2": float(F_N2_out*quantidade_reatores)
         },
         "Razao_H2_CO_Saida": float(H2_CO_out),
         "Temperatura_Saida_K": float(T_out),
@@ -227,13 +228,13 @@ plt.show()
 # ==========================
 
 # ALTURA
-area_secao_transversal = pi*(0.0508/2)**2  # m² - tubo de 2 in
+area_secao_transversal = pi*(diametro_reator/2)**2  # m² - tubo de 2 in
 
 porosidade = 0.6 # suposta - Salles (2013)
-diametro_particula = 0.00311  # m - Salles (2013)
-densidade_particula_catalisador = 3950  # kg_cat/m³ - Salles (2013)
+diametro_particula = 0.001  # m - GARCÍA-VARGAS et al. (2015)
+densidade_particula_catalisador = (0.05*8900)+(0.008*1738)+((1-0.05-0.008)*3210)  # kg_cat/m³ - Salles (2013)
 
-densidade_do_leito = 3950 * (1-porosidade)
+densidade_do_leito = densidade_particula_catalisador * (1-porosidade)
 volume = max(massa_w)/densidade_do_leito
 altura_reator = volume/area_secao_transversal
 
@@ -242,7 +243,7 @@ print(f"Altura do Reator = {altura_reator:.2f} m")
 # DIAMETRO
 # Usando um passe triangular
 
-diametro_externo = 0.06 # m - confirmar, considerei tubos de 2 in e e schedule 40 
-pitch = 1.25*diametro_externo # distância entre os centros dos tubos considerando arranjo triangular 
-diametro_casco = pitch*((numero_de_tubos/0.315)**0.5)
-print(f"Diâmetro do Reator = {diametro_casco:.2f} m")
+# diametro_externo = 0.06 # m - confirmar, considerei tubos de 2 in e e schedule 40 
+# pitch = 1.25*diametro_externo # distância entre os centros dos tubos considerando arranjo triangular 
+
+print(f"Diâmetro do Reator = {diametro_reator:.2f} m")

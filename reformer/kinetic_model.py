@@ -1,7 +1,7 @@
 from math import exp, pi
 from thermodynamic import capacidade_calorífica, viscosidade
 
-def cinetica_reformer(condicoes_iniciais, componentes):
+def cinetica_reformer(condicoes_iniciais, componentes, diametro_reator):
     # Baseado nos estudos de Ramos et al. (2024) e García-Vargas et al. (2015)
     '''
         Catalyst: Ni-Mg/β-SiC
@@ -57,8 +57,8 @@ def cinetica_reformer(condicoes_iniciais, componentes):
     taxa_de_geracao["CH4"] = (-r_dr)+(-r_sr)+(0)
     taxa_de_geracao["N2"] = 0
 
-    # taxa_de_geracao["P"] = perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica)
-    taxa_de_geracao["P"] = 0
+    taxa_de_geracao["P"] = perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica, diametro_reator)
+    # taxa_de_geracao["P"] = 0
 
     dTdW, dQdW = balanco_energia(componentes, temperatura, vazao_molar, r_dr, r_sr, r_wgs)
     
@@ -95,16 +95,15 @@ def balanco_energia(componentes, temperatura, vazao_molar, r_dr, r_sr, r_wgs):
     dTdW = (Q+sum_dH)/sum_FiCpi
     return dTdW, Q
 
-def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica):
+def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica, diametro_reator):
     # ================================
     #   PERDA DE CARGA POR ERGUN
     # ================================
-
-    area_secao_transversal = pi*(0.0508/2)**2  # m² - tubo de 2 in
+    area_secao_transversal = pi*(diametro_reator/2)**2  # m² - tubo de 2 in
 
     porosidade = 0.6 # suposta - Salles (2013)
-    diametro_particula = 0.00311  # m - Salles (2013)
-    densidade_particula_catalisador = 3950  # kg_cat/m³ - Salles (2013)
+    diametro_particula = 0.001  # m - GARCÍA-VARGAS et al. (2015)
+    densidade_particula_catalisador = (0.05*8900)+(0.008*1738)+((1-0.05-0.008)*3210)  # kg_cat/m³ - Salles (2013)
     
     # Convertendo a vazão mássica para kg/s:
     vazao_massica_kg_s = vazao_massica_total/1000
@@ -113,7 +112,7 @@ def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura,
     visc_mistura = viscosidade(componentes, vazao_massica, vazao_massica_total, temperatura)
 
     velocidade = vazao_volumetrica / area_secao_transversal # m/s
-    #print(velocidade)
+    
     densidade_gas = vazao_massica_kg_s / vazao_volumetrica # kg/m³
     
     # 3. Equação de Ergun (Calcula dP/dz em Pa/m)

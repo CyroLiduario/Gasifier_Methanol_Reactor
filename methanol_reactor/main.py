@@ -26,12 +26,12 @@ with open('./materiais.json', 'r') as materiais:
 
 #vazao_molar = { componente: vazao_molar_comp*(1000/3600) for componente, vazao_molar_comp in vazao_molar.items()}
 
-caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'gasifier', 'saida_gaseificador.json')
+caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer', 'saida_reformer.json')
 
 with open(caminho_saida_gas, 'r', encoding='utf-8') as f:
     dados_gaseificador = json.load(f)
 
-vazoes_brutas = dados_gaseificador["Saida_Gaseificador"]["Vazoes_Molares_mol_s"]
+vazoes_brutas = dados_gaseificador["Saida"]["Vazoes_Molares"]
 
 # 3. Mapeamento das correntes (mol/s globais)
 # A ordem de inserção aqui garante a ordem correta para a EDO
@@ -128,7 +128,7 @@ plt.plot(massa_cat, vazao_CH3OH, label="CH₃OH")
 plt.plot(massa_cat, vazao_CH4, label="CH₄")
 plt.plot(massa_cat, vazao_H2O, label="H₂O")
 plt.plot(massa_cat, vazao_CO2, label="CO₂")
-plt.plot(massa_cat, vazao_N2, label="N₂")
+# plt.plot(massa_cat, vazao_N2, label="N₂") - mais polui que ajuda
 
 # Personalização do gráfico
 plt.xlabel('Massa de Catalisador (kg)', fontsize=12)

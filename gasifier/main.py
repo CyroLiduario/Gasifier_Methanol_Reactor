@@ -9,6 +9,11 @@ from kinetic_model import gasifier_odes
 # ==========================================
 # 1. CARREGAMENTO DOS MATERIAIS E CONSTANTES
 # ==========================================
+
+# SIMULAÇÃO FEITA CONSIDERANDO 5 GASEIFICADORES EM PARALELO PARA CHEGAR A 50 T/H DE METANOL  
+numero_reatores = 5
+vazao_inicial_biomassa = 101104.0 # kg/h
+
 with open('./gasifier/materials.json', 'r') as f:
     materiais = json.load(f)
 
@@ -36,9 +41,7 @@ reator_params = {
 area_secao = (math.pi * reator_params["D"]**2) / 4.0
 
 # --- Fase Sólida ---
-# SIMULAÇÃO FEITA CONSIDERANDO 5 GASEIFICADORES EM PARALELO PARA CHEGAR A 50 T/H DE METANOL  
-# TODO: ALTERAR PARA 1 ÚNICO REATOR
-F_s = 101104.0 / 5.0 # Vazão mássica de biomassa (kg/h)
+F_s = vazao_inicial_biomassa / numero_reatores # Vazão mássica de biomassa (kg/h)
 YM = 0.0872 # Umidade inicial (8.72%)
 rhom_s0 = 119.0 # Densidade da biomassa (kg/m³)
 
@@ -181,7 +184,7 @@ vazoes_saida_mol_s = {}
 for i, comp in enumerate(chaves_gases):
     # C_gases[i][-1] está em mol/m³. Multiplicando por m³/s temos mol/s
     # SIMULAÇÃO FEITA CONSIDERANDO 5 GASEIFICADORES EM PARALELO PARA CHEGAR A 50 T/H DE METANOL    
-    vazoes_saida_mol_s[comp] = float(C_gases[i][-1] * Q_out * 5)
+    vazoes_saida_mol_s[comp] = float(C_gases[i][-1] * Q_out * numero_reatores)
 
 # 2. Cálculo das vazões molares de entrada de gás (mol/s) para o relatório
 # O índice 0 é H2O, 1 é O2, e 6 é N2 no seu array X_g0 / C_g0
