@@ -8,23 +8,23 @@ from scipy.integrate import solve_ivp
 with open('./materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
-# Confirmar se as vazões estão em kmol/h
-# Arbitrar um número de tubos (dividir a vazão total pelo número de tubos)
-vazao_molar = { #kmol/h
-    "CO" : 3418.4,
-    "H2" : 6788.6,
-    "CH3OH" : 65,
-    "CH4" : 303.1,
-    "H2O" : 42.8,
-    "CO2" : 42.8,
-    "N2" : 3048.7
+caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer', 'saida_reformer.json')
+
+with open(caminho_saida_gas, 'r', encoding='utf-8') as f:
+    dados_gaseificador = json.load(f)
+
+vazoes_brutas = dados_gaseificador["Saida"]["Vazoes_Molares"]
+
+# 3. Mapeamento das correntes (mol/s globais)
+vazao_molar = {
+    "CO": vazoes_brutas.get("CO"),
+    "H2": vazoes_brutas.get("H2"),
+    "CH3OH": 0.0,  # O gaseificador não produz metanol
+    "CH4": vazoes_brutas.get("CH4"),
+    "H2O": vazoes_brutas.get("H2O"),
+    "CO2": vazoes_brutas.get("CO2"),
+    "N2": vazoes_brutas.get("N2")
 }
-#print(vazao_molar)
-
-# transformando em mol/s
-
-vazao_molar = { componente: vazao_molar_comp*(1000/3600) for componente, vazao_molar_comp in vazao_molar.items()}
-#print(vazao_molar)
 
 # vazao por tubo
 numero_de_tubos = 1000
@@ -37,22 +37,8 @@ for componente in componentes:
 
 vazao_massica_total = sum(vazao_massica.values())
 
-massa_de_catalisador = (0, 25)
+massa_de_catalisador = (0, 30)
 condicoes_iniciais = list(vazao_molar.values()) + [503, 60e5, 0]
-
-# SE TESTAR ATINGIR METAS, ATIVAR O SCRIPT ABAIXO
-atingir_meta = False
-metanol_meta = (50000*(1000/3600))/componentes["CH3OH"]["MM"] # mol/s
-print(metanol_meta)
-
-metanol_meta_tubo = metanol_meta/numero_de_tubos
-print(metanol_meta_tubo)
-
-def atingiu_meta(w, y, componentes):
-    vazao_CH3OH_atual = y[2]
-    return vazao_CH3OH_atual - metanol_meta_tubo
-
-atingiu_meta.terminal = True
 
 def sistema_edos(w, y, componentes):
     # y representa as variáveis dependentes (vazão molar, por exemplo)
@@ -90,23 +76,13 @@ def sistema_edos(w, y, componentes):
     return dy_dt
 
 # Resolvendo a EDO
-if atingir_meta:
-    solucao = solve_ivp(
-        sistema_edos,
-        massa_de_catalisador,
-        condicoes_iniciais,
-        args=(componentes,),
-        method='RK45',  # Método Runge-Kutta de 4ª e 5ª ordem
-        events=atingiu_meta
-    )
-else:
-    solucao = solve_ivp(
-        sistema_edos,
-        massa_de_catalisador,
-        condicoes_iniciais,
-        args=(componentes,),
-        method='RK45'  # Método Runge-Kutta de 4ª e 5ª ordem
-    )
+solucao = solve_ivp(
+    sistema_edos,
+    massa_de_catalisador,
+    condicoes_iniciais,
+    args=(componentes,),
+    method='RK45'  # Método Runge-Kutta de 4ª e 5ª ordem
+)
 
 # Extraindo as massas de catalisador
 massa_cat = solucao.t
@@ -133,7 +109,7 @@ plt.plot(massa_cat, vazao_CH3OH, label="CH₃OH")
 plt.plot(massa_cat, vazao_CH4, label="CH₄")
 plt.plot(massa_cat, vazao_H2O, label="H₂O")
 plt.plot(massa_cat, vazao_CO2, label="CO₂")
-plt.plot(massa_cat, vazao_N2, label="N₂")
+# plt.plot(massa_cat, vazao_N2, label="N₂") - mais polui que ajuda
 
 # Personalização do gráfico
 plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
@@ -217,7 +193,6 @@ pitch = 1.25*diametro_externo # distância entre os centros dos tubos consideran
 diametro_casco = pitch*((numero_de_tubos/0.315)**0.5)
 print(f"Diâmetro do Reator = {diametro_casco:.2f} m")
 
-#print(vazao_CH3OH)
 vazao_CH3OH_final = max(vazao_CH3OH) * numero_de_tubos * 3600 * componentes["CH3OH"]["MM"]*(1/1000) 
 print(f"Vazão Final de Matanol = {vazao_CH3OH_final:.2f} kg/h")
 

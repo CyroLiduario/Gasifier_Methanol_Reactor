@@ -1,3 +1,15 @@
+# Realiza o cálculo de um reator de bi-reforma catalítica 
+# conforme proposto por Ramos et al. (2024) e García-Vargas et al. (2015)
+'''
+    Catalyst: Ni-Mg/β-SiC
+    Dry Reforming: CH4 + CO2 ↔ 2 CO + 2 H2
+    Steam Reforming: CH4 + H2O ↔ CO+ 3 H2
+    Water-gas shift: CO + H2O ↔ CO2 + H2
+    Reverse Methanation: CH4 + 2 H2O ↔ CO2 + 4 H2 - desconsiderada no estudo de Ramos et al. (2024)
+'''
+
+#TODO: CONFIRMAR DADOS DE DENSIDADE DO CATALIZADOR
+
 import os
 import json
 from math import pi

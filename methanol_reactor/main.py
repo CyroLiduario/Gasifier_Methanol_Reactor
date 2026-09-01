@@ -8,24 +8,6 @@ from scipy.integrate import solve_ivp
 with open('./materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
-# Confirmar se as vazões estão em kmol/h
-# Arbitrar um número de tubos (dividir a vazão total pelo número de tubos)
-"""
-    vazao_molar = { #kmol/h
-        "CO" : 3418.4,
-        "H2" : 6788.6,
-        "CH3OH" : 65,
-        "CH4" : 303.1,
-        "H2O" : 42.8,
-        "CO2" : 42.8,
-        "N2" : 3048.7
-    }
-"""
-
-# transformando em mol/s
-
-#vazao_molar = { componente: vazao_molar_comp*(1000/3600) for componente, vazao_molar_comp in vazao_molar.items()}
-
 caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer', 'saida_reformer.json')
 
 with open(caminho_saida_gas, 'r', encoding='utf-8') as f:
@@ -34,7 +16,6 @@ with open(caminho_saida_gas, 'r', encoding='utf-8') as f:
 vazoes_brutas = dados_gaseificador["Saida"]["Vazoes_Molares"]
 
 # 3. Mapeamento das correntes (mol/s globais)
-# A ordem de inserção aqui garante a ordem correta para a EDO
 vazao_molar = {
     "CO": vazoes_brutas.get("CO"),
     "H2": vazoes_brutas.get("H2"),
@@ -212,7 +193,6 @@ pitch = 1.25*diametro_externo # distância entre os centros dos tubos consideran
 diametro_casco = pitch*((numero_de_tubos/0.315)**0.5)
 print(f"Diâmetro do Reator = {diametro_casco:.2f} m")
 
-#print(vazao_CH3OH)
 vazao_CH3OH_final = max(vazao_CH3OH) * numero_de_tubos * 3600 * componentes["CH3OH"]["MM"]*(1/1000) 
 print(f"Vazão Final de Matanol = {vazao_CH3OH_final:.2f} kg/h")
 

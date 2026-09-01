@@ -1,6 +1,8 @@
 from math import exp, pi
 from thermodynamic import capacidade_calorífica, viscosidade
 
+#TODO: CONFIRMAR A DENSIDADE DO CATALISADOR E POROSIDADE DO LEITO CATALÍTICO
+
 def cinetica_reformer(condicoes_iniciais, componentes, diametro_reator):
     # Baseado nos estudos de Ramos et al. (2024) e García-Vargas et al. (2015)
     '''
