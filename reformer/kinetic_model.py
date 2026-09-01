@@ -2,13 +2,13 @@ from math import exp, pi
 from thermodynamic import capacidade_calorífica, viscosidade
 
 def cinetica_reformer(condicoes_iniciais, componentes):
-    # Baseado nos estudos de Ramos et al. (2024)
+    # Baseado nos estudos de Ramos et al. (2024) e García-Vargas et al. (2015)
     '''
-        Catalyst: Ni
+        Catalyst: Ni-Mg/β-SiC
         Dry Reforming: CH4 + CO2 ↔ 2 CO + 2 H2
         Steam Reforming: CH4 + H2O ↔ CO+ 3 H2
         Water-gas shift: CO + H2O ↔ CO2 + H2
-        Reverse Methanation: CH4 + 2 H2O ↔ CO2 + 4 H2 - desconsiderada no estudo
+        Reverse Methanation: CH4 + 2 H2O ↔ CO2 + 4 H2 - desconsiderada no estudo de Ramos et al. (2024)
     '''
 
     vazao_molar = {componente: valor for componente, valor in condicoes_iniciais.items() if componente not in ("P", "T", "Q")}
@@ -16,32 +16,37 @@ def cinetica_reformer(condicoes_iniciais, componentes):
     pressao = condicoes_iniciais["P"]
     vazao_molar_total = sum(vazao_molar.values())
 
+    # vazao massica
+    vazao_massica = {}
+    for componente in componentes:
+        vazao_massica[componente] = componentes[componente]["MM"] * vazao_molar[componente]
+
+    vazao_massica_total = sum(vazao_massica.values())
+    vazao_volumetrica = vazao_molar_total *8.314*temperatura/pressao #considerando gás ideal pela baixa pressão
+
     pressoes_parciais = {}
 
     for componente in componentes:
         fracao_molar = vazao_molar[componente] / vazao_molar_total
         pressoes_parciais[componente] = fracao_molar * (pressao / 1000) # kPa
     
-    Rg = 8.314 # J/(mol.K)
-    Rg = 8.314/1000 # kJ/mol.K
+    #Rg = 8.314 # J/(mol.K)
+    Rg = 0.008314 # kJ/mol.K
 
     # Dry Reforming: CH4 + CO2 ↔ 2 CO + 2 H2
-    k_dr = 70.99*exp(-77.820/(Rg*temperatura)) # Ea convertido de kJ/mol para J/mol
+    k_dr = 70.99*exp(-77.820/(Rg*temperatura)) 
     K_dr = 6.780e18*exp(-31230/temperatura)
     r_dr = k_dr*pressoes_parciais["CH4"]*(1-(((pressoes_parciais["CO"]**2)*(pressoes_parciais["H2"]**2))/(pressoes_parciais["CH4"]*pressoes_parciais["CO2"]*K_dr)))
-    #r_dr = r_dr * 1000 # convertendo de kmol/s para mol/s - parece não ser necessário
 
     # Steam Reforming: CH4 + H2O ↔ CO+ 3 H2
-    k_sr = 85.77*exp(-74.720/(Rg*temperatura)) # Ea convertido de kJ/mol para J/mol
+    k_sr = 85.77*exp(-74.720/(Rg*temperatura)) 
     K_sr = 1.198e17*exp(-26830/temperatura)
     r_sr = k_sr*pressoes_parciais["CH4"]*(1-((pressoes_parciais["CO"]*(pressoes_parciais["H2"]**3))/(pressoes_parciais["CH4"]*pressoes_parciais["H2O"]*K_sr)))
-    #r_sr = r_sr * 1000 # convertendo de kmol/s para mol/s - parece não ser necessário
 
     # Water-gas shift: CO + H2O ↔ CO2 + H2
-    k_wgs = 149.92*exp(-54.260/(Rg*temperatura)) # Ea convertido de kJ/mol para J/mol
+    k_wgs = 149.92*exp(-54.260/(Rg*temperatura)) 
     K_wgs = 10**((2078/temperatura)-2.029)
     r_wgs = k_wgs*(((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/pressoes_parciais["H2"])-(pressoes_parciais["CO2"]/K_wgs))
-    #r_wgs = r_wgs * 1000 # convertendo de kmol/s para mol/s - parece não ser necessário
     
     # 5. Balanço Estequiométrico das Espécies (mol / kg_cat . s)
     taxa_de_geracao = {}
@@ -86,7 +91,7 @@ def balanco_energia(componentes, temperatura, vazao_molar, r_dr, r_sr, r_wgs):
     sum_FiCpi = sum(vazao_molar[k] * cp[k] for k in vazao_molar if k not in ("T", "P", "Q"))
 
     sum_dH = (r_dr*(-dH_dr))+(r_sr*(-dH_sr))+(r_wgs*(-dH_wgs))
-    Q = -sum_dH
+    Q = 0 # modelando um processo adiabático - sem troca térmica
     dTdW = (Q+sum_dH)/sum_FiCpi
     return dTdW, Q
 
@@ -108,7 +113,7 @@ def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura,
     visc_mistura = viscosidade(componentes, vazao_massica, vazao_massica_total, temperatura)
 
     velocidade = vazao_volumetrica / area_secao_transversal # m/s
-
+    #print(velocidade)
     densidade_gas = vazao_massica_kg_s / vazao_volumetrica # kg/m³
     
     # 3. Equação de Ergun (Calcula dP/dz em Pa/m)

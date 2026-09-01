@@ -1,5 +1,6 @@
 import os
 import json
+from math import pi
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
@@ -21,7 +22,7 @@ vazoes_in = dict(saida["Vazoes_Molares_mol_s"])
 vazoes_in.pop("O2", None)
 vazoes_in.pop("Tar", None)
 
-T_in_gasifier = saida["Temperatura_K"]
+T_in = saida["Temperatura_K"]
 P_in = saida["Pressao_Pa"]
 
 # ==========================================
@@ -36,16 +37,17 @@ with open('./reformer/materiais.json', 'r') as materiais:
 # ==========================================
 # Injeção de vapor d'água para corrigir a razão H2:CO do waste-derived syngas
 #TODO: VERIFICAR A MELHOR FORMA DE FAZER A ADIÇÃO, QUERO FAZER UMA ANÁLISE DE SENSIBILIDADE APÓS ISSO
-vazao_vapor_adicional = 5  # mol/s
+vazao_vapor_adicional = 350  # mol/s
 vazoes_in["H2O"] = vazoes_in["H2O"] + vazao_vapor_adicional
 
 # Injeção de CH4 adicional
-vazao_CH4_adicional = 5 # mol/s
+vazao_CH4_adicional = 350 # mol/s
 vazoes_in["CH4"] = vazoes_in["CH4"] + vazao_CH4_adicional
 
-T_in = 503  # Típico para início de leito HTS (~350°C a 400°C)
+numero_de_tubos = 1
+vazoes_in = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazoes_in.items()}
 
-Massa_Catalisador_Total = (0, 21) # kg de catalisador
+Massa_Catalisador_Total = (0, 25) # kg de catalisador
 
 # Vetor de estado [CO, H2, CH4, H2O, CO2, N2, T]
 y0 = [
@@ -124,7 +126,8 @@ relatorio = {
         "Vapor_Adicionado_mol_s": float(vazao_vapor_adicional),
         "Metano_Adicionado_mol_s": float(vazao_CH4_adicional),
         "Razao_H2_CO_Entrada": float(H2_CO_in),
-        "Temperatura_Entrada_K": float(T_in)  # <-- CORREÇÃO 3: Removido o "_wgs"
+        "Temperatura_Entrada_K": float(T_in),
+        "Vazoes_Molares": vazoes_in
     },
     "Saida": {
         "Vazoes_Molares": {
@@ -141,7 +144,7 @@ relatorio = {
     }
 }
 
-caminho_saida = os.path.join(os.path.dirname(__file__), 'saida_wgs.json')
+caminho_saida = os.path.join(os.path.dirname(__file__), 'saida_reformer.json')
 with open(caminho_saida, 'w', encoding='utf-8') as f:
     json.dump(relatorio, f, indent=4)
 
@@ -151,6 +154,10 @@ print(f"Razão H2:CO ajustada de {H2_CO_in:.2f} para {H2_CO_out:.2f}")
 # ==========================================
 # 7. VISUALIZAÇÃO DOS PERFIS
 # ==========================================
+
+# ==========================
+#   GRÁFICO DE COMPOSIÇÃO
+# ==========================
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
 ax1.plot(massa_w, y_out[0], label='CO', color='red', linewidth=2)
@@ -162,11 +169,80 @@ ax1.set_xlabel('Massa de Catalisador (kg)')
 ax1.set_ylabel('Vazão Molar (mol/s)')
 ax1.legend(loc='center left')
 
-ax2 = ax1.twinx()
-ax2.plot(massa_w, y_out[6] - 273.15, label='Temperatura (°C)', color='orange', linestyle='--', linewidth=2)
-ax2.set_ylabel('Temperatura (°C)')
-ax2.legend(loc='center right')
-
 plt.title('Perfil do Reformer (Ajuste de Gás de Síntese)')
 plt.grid(True)
+
+# ==========================
+#   PERFIL DE PRESSÃO
+# ==========================
+pressao = solucao.y[7]
+# Plotando os resultados
+plt.figure(figsize=(10, 6))
+plt.plot(massa_w, pressao, label="P [Pa]")
+
+# Personalização do gráfico
+plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
+plt.ylabel('Pressão [Pa]', fontsize=12)
+plt.title('Perfil de Pressão', fontsize=14)
+plt.legend()
+plt.grid(True)
+
+# ==========================
+#   PERFIL DE TEMPERATURA
+# ==========================
+
+temperatura = solucao.y[6]
+# Plotando os resultados
+plt.figure(figsize=(10, 6))
+
+plt.plot(massa_w, temperatura, label="T [K]")
+
+# Personalização do gráfico
+plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
+plt.ylabel('Temperatura [K]', fontsize=12)
+plt.title('Perfil de Temperatura', fontsize=14)
+plt.legend()
+plt.grid(True)
+
+# ==========================
+#   PERFIL DE CALOR
+# ==========================
+
+calor = solucao.y[8]
+# Plotando os resultados
+plt.figure(figsize=(10, 6))
+
+plt.plot(massa_w, calor, label="Q [J/s]")
+
+# Personalização do gráfico
+plt.xlabel('Massa de Catalisador (kg)', fontsize=12)
+plt.ylabel('Calor [J]', fontsize=12)
+plt.title('Perfil de Calor', fontsize=14)
+plt.legend()
+plt.grid(True)
 plt.show()
+
+# ==========================
+#   TAMANHO DO REATOR
+# ==========================
+
+# ALTURA
+area_secao_transversal = pi*(0.0508/2)**2  # m² - tubo de 2 in
+
+porosidade = 0.6 # suposta - Salles (2013)
+diametro_particula = 0.00311  # m - Salles (2013)
+densidade_particula_catalisador = 3950  # kg_cat/m³ - Salles (2013)
+
+densidade_do_leito = 3950 * (1-porosidade)
+volume = max(massa_w)/densidade_do_leito
+altura_reator = volume/area_secao_transversal
+
+print(f"Altura do Reator = {altura_reator:.2f} m")
+
+# DIAMETRO
+# Usando um passe triangular
+
+diametro_externo = 0.06 # m - confirmar, considerei tubos de 2 in e e schedule 40 
+pitch = 1.25*diametro_externo # distância entre os centros dos tubos considerando arranjo triangular 
+diametro_casco = pitch*((numero_de_tubos/0.315)**0.5)
+print(f"Diâmetro do Reator = {diametro_casco:.2f} m")
