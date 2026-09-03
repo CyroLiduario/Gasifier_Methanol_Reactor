@@ -288,7 +288,7 @@ ax1.plot(massa_w, y_out[3], label='H₂O', color='cyan', linewidth=2)
 ax1.plot(massa_w, y_out[4], label='CO₂', color='gray', linewidth=2)
 ax1.set_xlabel('Massa de Catalisador (kg)')
 ax1.set_ylabel('Vazão Molar (mol/s)')
-ax1.legend(loc='center left')
+ax1.legend(loc='center right')
 
 plt.title('Perfil do Reformer (Ajuste de Gás de Síntese)')
 plt.grid(True)
