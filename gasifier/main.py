@@ -11,8 +11,8 @@ from kinetic_model import gasifier_odes
 # ==========================================
 
 # SIMULAÇÃO FEITA CONSIDERANDO 5 GASEIFICADORES EM PARALELO PARA CHEGAR A 50 T/H DE METANOL  
-numero_reatores = 5
-vazao_inicial_biomassa = 101104.0 # kg/h
+numero_reatores = 1
+vazao_inicial_biomassa = 20000 # kg/h
 
 with open('./gasifier/materials.json', 'r') as f:
     materiais = json.load(f)

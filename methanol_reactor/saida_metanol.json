@@ -1,39 +1,39 @@
 {
     "Parametros_Reator_Global": {
-        "Numero_de_Tubos": 1000,
+        "Numero_de_Tubos": 300,
         "Massa_Catalisador_Por_Tubo_kg": 25.0,
         "Altura_Estimada_m": 7.806666302966714,
-        "Diametro_Casco_Estimado_m": 4.225771273642583
+        "Diametro_Casco_Estimado_m": 2.3145502494313788
     },
     "Entrada_Reator_Metanol": {
         "Temperatura_K": 503.0,
         "Pressao_Pa": 6000000.0,
         "Vazoes_Molares_Por_Tubo_mol_s": {
-            "CO": 0.8303820058917429,
-            "H2": 1.1798189395084346,
+            "CO": 0.5307956611271917,
+            "H2": 1.0752991445816458,
             "CH3OH": 0.0,
-            "CH4": 0.3773295556943478,
-            "H2O": 0.4597095622462556,
-            "CO2": 0.5806499301752265,
-            "N2": 2.196800514959594
+            "CH4": 0.5044921028090162,
+            "H2O": 0.4719162288848904,
+            "CO2": 0.4697691285206083,
+            "N2": 1.4485417853716267
         }
     },
     "Saida_Reator_Metanol": {
         "Temperatura_K": 503.0,
-        "Pressao_Pa": 5051287.78723852,
+        "Pressao_Pa": 5445265.635499795,
         "Vazoes_Molares_Por_Tubo_mol_s": {
-            "CO": 0.038413825426264536,
-            "H2": 0.7328311349632248,
-            "CH3OH": 0.41298532833689594,
-            "CH4": 0.3773295556943478,
-            "H2O": 0.08072671011767327,
-            "CO2": 0.9596327823038088,
-            "N2": 2.196800514959594
+            "CO": 0.0066830268211654125,
+            "H2": 0.7982761262092676,
+            "CH3OH": 0.2670452175594682,
+            "CH4": 0.5044921028090162,
+            "H2O": 0.21484881213833226,
+            "CO2": 0.7268365452671665,
+            "N2": 1.4485417853716267
         },
         "Performance_Global": {
-            "Conversao_CO_percent": 95.37395738904382,
-            "Conversao_CO2_percent": -65.26873292040423,
-            "Producao_Metanol_kg_h": 47635.379711690926
+            "Conversao_CO_percent": 98.74094170118622,
+            "Conversao_CO2_percent": -54.722075406724144,
+            "Producao_Metanol_kg_h": 9240.61907225379
         }
     }
 }

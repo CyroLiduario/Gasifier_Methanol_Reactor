@@ -10,7 +10,7 @@ from scipy.optimize import minimize
 # ==========================================
 # 1. LEITURA DOS DADOS DE SAÍDA DO GASEIFICADOR
 # ==========================================
-quantidade_reatores = 5
+quantidade_reatores = 1
 diametro_reator = 2.5
 caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'gasifier', 'saida_gaseificador.json')
 
