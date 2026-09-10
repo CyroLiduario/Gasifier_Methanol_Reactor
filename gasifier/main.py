@@ -173,8 +173,7 @@ chaves_gases = ["H2O", "O2", "CO", "CO2", "H2", "CH4", "N2", "Tar"]
 vazoes_saida_mol_s = {}
 
 for i, comp in enumerate(chaves_gases):
-    # C_gases[i][-1] está em mol/m³. Multiplicando por m³/s temos mol/s
-    # SIMULAÇÃO FEITA CONSIDERANDO 5 GASEIFICADORES EM PARALELO PARA CHEGAR A 50 T/H DE METANOL    
+    # C_gases[i][-1] está em mol/m³. Multiplicando por m³/s temos mol/s  
     vazoes_saida_mol_s[comp] = float(C_gases[i][-1] * Q_out)
 
 # 2. Cálculo das vazões molares de entrada de gás (mol/s) para o relatório
