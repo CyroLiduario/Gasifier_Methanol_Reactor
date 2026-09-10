@@ -112,7 +112,7 @@ def sistema_edos(w, y, componentes, diametro_reator):
 # ==========================================
 # 5. INTEGRAÇÃO NUMÉRICA
 # ==========================================
-print("Integrando reator WGS (correção H2:CO)...")
+print("Integrando reator de reforma (correção H2:CO)...")
 solucao = solve_ivp(
     sistema_edos,
     Massa_Catalisador_Total,

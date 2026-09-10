@@ -91,7 +91,8 @@ def balanco_energia(componentes, temperatura, vazao_molar, r_dr, r_sr, r_wgs):
     sum_FiCpi = sum(vazao_molar[k] * cp[k] for k in vazao_molar if k not in ("T", "P", "Q"))
 
     sum_dH = (r_dr*(-dH_dr))+(r_sr*(-dH_sr))+(r_wgs*(-dH_wgs))
-    Q = 0 # modelando um processo adiabático - sem troca térmica
+    #Q = 0 # modelando um processo adiabático - sem troca térmica
+    Q = -sum_dH
     dTdW = (Q+sum_dH)/sum_FiCpi
     return dTdW, Q
 

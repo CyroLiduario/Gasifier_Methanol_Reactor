@@ -176,7 +176,7 @@ def avaliar_reformer(x, componentes, diametro_reator, Massa_Catalisador_Total, q
 bounds_moo = [
     (0.0, 1000.0), 
     (0.0, 1000.0), 
-    (973.15, 1373.15)
+    (1138.9, 1373.15)
 ]
 
 # Chute inicial razoável para o algoritmo começar a procurar
