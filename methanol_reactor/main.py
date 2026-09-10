@@ -9,7 +9,7 @@ with open('./materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
 caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer', 'saida_reformer.json')
-# caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer_optimization', 'saida_reformer.json')
+#caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer_optimization', 'saida_reformer.json')
 
 with open(caminho_saida_gas, 'r', encoding='utf-8') as f:
     dados_gaseificador = json.load(f)
@@ -26,9 +26,10 @@ vazao_molar = {
     "CO2": vazoes_brutas.get("CO2"),
     "N2": vazoes_brutas.get("N2")
 }
-
+wt_agua = vazao_molar["H2O"]/sum(vazao_molar.values())
+print(wt_agua)
 # vazao por tubo
-numero_de_tubos = 1000
+numero_de_tubos = 300
 vazao_molar = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazao_molar.items()}
 #print(vazao_molar)
 

@@ -21,7 +21,7 @@ from kinetic_model import cinetica_reformer
 # ==========================================
 # 1. LEITURA DOS DADOS DE SAÍDA DO GASEIFICADOR
 # ==========================================
-quantidade_reatores = 5
+quantidade_reatores = 1
 diametro_reator = 2.5
 caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'gasifier', 'saida_gaseificador.json')
 
@@ -45,15 +45,15 @@ with open('./reformer/materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
 # ==========================================
-# 3. PREPARAÇÃO DA ALIMENTAÇÃO DO REATOR WGS
+# 3. PREPARAÇÃO DA ALIMENTAÇÃO DO REATOR DE REFORMA
 # ==========================================
 # Injeção de vapor d'água para corrigir a razão H2:CO do waste-derived syngas
 #TODO: VERIFICAR A MELHOR FORMA DE FAZER A ADIÇÃO, QUERO FAZER UMA ANÁLISE DE SENSIBILIDADE APÓS ISSO
-vazao_vapor_adicional = 600  # mol/s
+vazao_vapor_adicional = 216.44  # mol/s
 vazoes_in["H2O"] = vazoes_in["H2O"] + vazao_vapor_adicional
 
 # Injeção de CH4 adicional
-vazao_CH4_adicional = 600 # mol/s
+vazao_CH4_adicional = 216.44 # mol/s
 vazoes_in["CH4"] = vazoes_in["CH4"] + vazao_CH4_adicional
 
 vazoes_in = {componente: vazao_molar_comp/quantidade_reatores for componente, vazao_molar_comp in vazoes_in.items()}
