@@ -45,7 +45,7 @@ with open('./reformer/materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
 # ==========================================
-# 3. PREPARAÇÃO DA ALIMENTAÇÃO DO REATOR WGS
+# 3. PREPARAÇÃO DA ALIMENTAÇÃO DO REATOR DE REFORMA
 # ==========================================
 # Injeção de vapor d'água para corrigir a razão H2:CO do waste-derived syngas
 #TODO: VERIFICAR A MELHOR FORMA DE FAZER A ADIÇÃO, QUERO FAZER UMA ANÁLISE DE SENSIBILIDADE APÓS ISSO
