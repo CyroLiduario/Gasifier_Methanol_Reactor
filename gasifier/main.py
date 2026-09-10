@@ -10,8 +10,6 @@ from kinetic_model import gasifier_odes
 # 1. CARREGAMENTO DOS MATERIAIS E CONSTANTES
 # ==========================================
 
-# SIMULAÇÃO FEITA CONSIDERANDO 5 GASEIFICADORES EM PARALELO PARA CHEGAR A 50 T/H DE METANOL  
-numero_reatores = 1
 vazao_inicial_biomassa = 20000 # kg/h
 
 with open('./gasifier/materials.json', 'r') as f:
@@ -41,7 +39,7 @@ reator_params = {
 area_secao = (math.pi * reator_params["D"]**2) / 4.0
 
 # --- Fase Sólida ---
-F_s = vazao_inicial_biomassa / numero_reatores # Vazão mássica de biomassa (kg/h)
+F_s = vazao_inicial_biomassa # Vazão mássica de biomassa (kg/h)
 YM = 0.0872 # Umidade inicial (8.72%)
 rhom_s0 = 119.0 # Densidade da biomassa (kg/m³)
 
@@ -53,14 +51,7 @@ rho_M0 = rhom_s0 * YM
 # --- Fase Gasosa (Ar de Combustão) ---
 ER = 0.18 # Razão de equivalência
 
-# Defina a fração molar de vapor d'água que você quer na mistura de entrada
-#fracao_vapor = 0 # Exemplo: 15% de vapor e 85% de ar
-#fracao_ar = 1.0 - fracao_vapor
-#fracao_O2 = 0.21 * fracao_ar
-#fracao_N2 = 0.79 * fracao_ar
-
 # A ordem do vetor é: [H2O, O2, CO, CO2, H2, CH4, N2, Tar]
-#X_g0 = [fracao_vapor, fracao_O2, 0.0, 0.0, 0.0, 0.0, fracao_N2, 0.0]
 X_g0 = [0.0, 0.21, 0.0, 0.0, 0.0, 0.0, 0.79, 0.0]
 
 rhom_g0_ar = 101325.0 / (287.058 * 300.0) # Densidade padrão do ar (kg/m³)
@@ -184,7 +175,7 @@ vazoes_saida_mol_s = {}
 for i, comp in enumerate(chaves_gases):
     # C_gases[i][-1] está em mol/m³. Multiplicando por m³/s temos mol/s
     # SIMULAÇÃO FEITA CONSIDERANDO 5 GASEIFICADORES EM PARALELO PARA CHEGAR A 50 T/H DE METANOL    
-    vazoes_saida_mol_s[comp] = float(C_gases[i][-1] * Q_out * numero_reatores)
+    vazoes_saida_mol_s[comp] = float(C_gases[i][-1] * Q_out)
 
 # 2. Cálculo das vazões molares de entrada de gás (mol/s) para o relatório
 # O índice 0 é H2O, 1 é O2, e 6 é N2 no seu array X_g0 / C_g0
