@@ -21,7 +21,6 @@ from kinetic_model import cinetica_reformer
 # ==========================================
 # 1. LEITURA DOS DADOS DE SAÍDA DO GASEIFICADOR
 # ==========================================
-quantidade_reatores = 1
 diametro_reator = 2.5
 caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'gasifier', 'saida_gaseificador.json')
 
@@ -56,7 +55,6 @@ vazoes_in["H2O"] = vazoes_in["H2O"] + vazao_vapor_adicional
 vazao_CH4_adicional = 216.44 # mol/s
 vazoes_in["CH4"] = vazoes_in["CH4"] + vazao_CH4_adicional
 
-vazoes_in = {componente: vazao_molar_comp/quantidade_reatores for componente, vazao_molar_comp in vazoes_in.items()}
 #numero_de_tubos = 1
 #vazoes_in = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazoes_in.items()}
 
@@ -144,12 +142,12 @@ relatorio = {
     },
     "Saida": {
         "Vazoes_Molares": {
-            "CO": float(F_CO_out*quantidade_reatores), 
-            "H2": float(F_H2_out*quantidade_reatores), 
-            "CH4": float(F_CH4_out*quantidade_reatores),
-            "H2O": float(F_H2O_out*quantidade_reatores), 
-            "CO2": float(F_CO2_out*quantidade_reatores), 
-            "N2": float(F_N2_out*quantidade_reatores)
+            "CO": float(F_CO_out), 
+            "H2": float(F_H2_out), 
+            "CH4": float(F_CH4_out),
+            "H2O": float(F_H2O_out), 
+            "CO2": float(F_CO2_out), 
+            "N2": float(F_N2_out)
         },
         "Razao_H2_CO_Saida": float(H2_CO_out),
         "Temperatura_Saida_K": float(T_out),
