@@ -128,10 +128,11 @@ def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura,
     # ================================
     area_secao_transversal = pi*(diametro_reator/2)**2  # m² - tubo de 2 in
 
-    porosidade = 0.6 # suposta - Salles (2013)
+    densidade_particula_catalisador = 3950  # kg_cat/m³ - Salles (2013)
     diametro_particula = 0.001  # m - GARCÍA-VARGAS et al. (2015)
-    densidade_particula_catalisador = (0.05*8900)+(0.008*1738)+((1-0.05-0.008)*3210)  # kg_cat/m³ - Salles (2013)
-    
+
+    porosidade = 0.6 # suposta - Salles (2013)
+        
     # Convertendo a vazão mássica para kg/s:
     vazao_massica_kg_s = vazao_massica_total/1000
     

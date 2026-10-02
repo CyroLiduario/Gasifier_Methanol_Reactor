@@ -55,7 +55,7 @@ vazoes_in["H2O"] = vazoes_in["H2O"] + vazao_vapor_adicional
 vazao_CH4_adicional = 216.44 # mol/s
 vazoes_in["CH4"] = vazoes_in["CH4"] + vazao_CH4_adicional
 
-multitubular = False
+multitubular = True
 if multitubular:
     numero_de_tubos = 1000
     diametro_reator = 0.0762
