@@ -55,16 +55,16 @@ vazoes_in["H2O"] = vazoes_in["H2O"] + vazao_vapor_adicional
 vazao_CH4_adicional = 216.44 # mol/s
 vazoes_in["CH4"] = vazoes_in["CH4"] + vazao_CH4_adicional
 
-multitubular = True
+multitubular = False
 if multitubular:
-    numero_de_tubos = 1000
+    numero_de_tubos = 3000
     diametro_reator = 0.0762
     vazoes_in = {componente: vazao_molar_comp/numero_de_tubos for componente, vazao_molar_comp in vazoes_in.items()}
 else:
     diametro_reator = 3
     numero_de_tubos = 1
 
-Massa_Catalisador_Total = (0, 25) # kg de catalisador
+Massa_Catalisador_Total = (0, 40) # kg de catalisador
 
 # Vetor de estado [CO, H2, CH4, H2O, CO2, N2, T]
 y0 = [
