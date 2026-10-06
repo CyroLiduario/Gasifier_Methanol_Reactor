@@ -98,7 +98,7 @@ def sistema_edos(w, y, componentes, diametro_reator):
     }
     
     # Chama a função de cinética que calcula as taxas de geração
-    taxa_de_geracao = cinetica_reformer(condicoes_iniciais, componentes, diametro_reator)
+    taxa_de_geracao, _ = cinetica_reformer(condicoes_iniciais, componentes, diametro_reator)
 
     # Converte o dicionário de taxas de geração em uma lista de derivadas
     dy_dt = [
@@ -135,8 +135,41 @@ F_CO_out, F_H2_out, F_CH4_out, F_H2O_out, F_CO2_out, F_N2_out, T_out, P_out, Q_o
 H2_CO_in = y0[1] / y0[0] if y0[0] > 0 else 0
 H2_CO_out = F_H2_out / F_CO_out if F_CO_out > 0 else 0
 
+
 # ==========================================
-# 6. EXPORTAÇÃO DOS RESULTADOS (JSON)
+# 6. PERFIS DAS TAXAS DE REAÇÃO
+# ==========================================
+
+taxas_drm = []
+taxas_srm = []
+taxas_wgs = []
+
+for i in range(len(massa_w)):
+
+    condicoes_iniciais = {
+        "CO": y_out[0, i],
+        "H2": y_out[1, i],
+        "CH4": y_out[2, i],
+        "H2O": y_out[3, i],
+        "CO2": y_out[4, i],
+        "N2": y_out[5, i],
+        "T": y_out[6, i],
+        "P": y_out[7, i],
+        "Q": y_out[8, i]
+    }
+
+    _, taxas_reacao = cinetica_reformer(
+        condicoes_iniciais,
+        componentes,
+        diametro_reator
+    )
+
+    taxas_drm.append(taxas_reacao["DRM"])
+    taxas_srm.append(taxas_reacao["SRM"])
+    taxas_wgs.append(taxas_reacao["WGS"])
+
+# ==========================================
+# 7. EXPORTAÇÃO DOS RESULTADOS (JSON)
 # ==========================================
 relatorio = {
     "Alimentacao": {
@@ -169,8 +202,62 @@ print(f"Sucesso! Relatório salvo em: {caminho_saida}")
 print(f"Razão H2:CO ajustada de {H2_CO_in:.2f} para {H2_CO_out:.2f}")
 
 # ==========================================
-# 7. VISUALIZAÇÃO DOS PERFIS
+# 8. VISUALIZAÇÃO DOS PERFIS
 # ==========================================
+
+# ===============================
+#   GRÁFICOS DE TAXA DE REAÇÃO
+# ===============================
+fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+
+# ==========================
+# DRY REFORMING
+# ==========================
+axes[0].plot(
+    massa_w,
+    taxas_drm,
+    linewidth=1.5
+)
+
+axes[0].set_xlabel("Massa de catalisador [kg]")
+axes[0].set_ylabel("Taxa [mol/(kg·s)]")
+axes[0].set_title("Dry Reforming")
+axes[0].grid(True, which="both")
+
+
+# ==========================
+# STEAM REFORMING
+# ==========================
+axes[1].plot(
+    massa_w,
+    taxas_srm,
+    linewidth=1.5
+)
+
+axes[1].set_xlabel("Massa de catalisador [kg]")
+axes[1].set_ylabel("Taxa [mol/(kg·s)]")
+axes[1].set_title("Steam Reforming")
+axes[1].grid(True, which="both")
+
+
+# ==========================
+# WATER-GAS SHIFT
+# ==========================
+axes[2].plot(
+    massa_w,
+    taxas_wgs,
+    linewidth=1.5
+)
+
+axes[2].set_xlabel("Massa de catalisador [kg]")
+axes[2].set_ylabel("Taxa [mol/(kg·s)]")
+axes[2].set_title("Water-Gas Shift")
+axes[2].grid(True, which="both")
+
+
+fig.suptitle("Perfil das taxas de reação ao longo do leito")
+plt.tight_layout()
+
 
 # ==========================
 #   GRÁFICO DE COMPOSIÇÃO

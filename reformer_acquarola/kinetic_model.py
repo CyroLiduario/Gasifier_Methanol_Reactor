@@ -90,8 +90,14 @@ def cinetica_reformer(condicoes_iniciais, componentes, diametro_reator):
     
     taxa_de_geracao["T"] = dTdW
     taxa_de_geracao["Q"] = dQdW
-    
-    return taxa_de_geracao
+
+    taxas_reacao = {
+    "DRM": r_dr,
+    "SRM": r_sr,
+    "WGS": r_wgs
+    }
+
+    return taxa_de_geracao, taxas_reacao
 
 def balanco_energia(componentes, temperatura, vazao_molar, r_dr, r_sr, r_wgs):
     dH_dr = 247000 #J/mol
@@ -140,7 +146,7 @@ def perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura,
     visc_mistura = viscosidade(componentes, vazao_massica, vazao_massica_total, temperatura)
 
     velocidade = vazao_volumetrica / area_secao_transversal # m/s
-    print(velocidade)
+    #print(velocidade)
     
     densidade_gas = vazao_massica_kg_s / vazao_volumetrica # kg/m³
     
