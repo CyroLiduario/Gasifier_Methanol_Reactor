@@ -64,7 +64,7 @@ else:
     diametro_reator = 3
     numero_de_tubos = 1
 
-Massa_Catalisador_Total = (0, 40) # kg de catalisador
+Massa_Catalisador_Total = (0, 1000) # kg de catalisador
 
 # Vetor de estado [CO, H2, CH4, H2O, CO2, N2, T]
 y0 = [
