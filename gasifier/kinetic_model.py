@@ -7,8 +7,12 @@ from thermodynamic import (
 
 def gasifier_odes(z, y, materiais, reator_params):
     """
-    Sistema de Equações Diferenciais Ordinárias (EDOs) do Gaseificador.
-    Retorna a derivada dy/dz para as 16 variáveis de estado ao longo do reator (z).
+        Calcula as derivadas espaciais das variáveis de estado
+        e as taxas de reação do gaseificador.
+
+        Retorna:
+            dydz: vetor com as 16 derivadas espaciais.
+            taxas_reacao: dicionário com as taxas instantâneas das reações.
     """
     # 1. Desempacotamento das variáveis de estado (y)
     rho_B, rho_char, rho_M = y[0], y[1], y[2]
@@ -196,4 +200,4 @@ def gasifier_odes(z, y, materiais, reator_params):
     denom_g = U_g * somaCgcp + U_g * (T_g - T0) * somaCgdcpdz
     dydz[15] = (1.0 / denom_g) * (-(U_g*(T_g - T0)*somacpdCgdz + (T_g - T0)*somaCgcp*dydz[11]) - somaRDH_g + transporte["Qsg"] - transporte["Qgw"])
 
-    return dydz
+    return dydz, taxas_reacao

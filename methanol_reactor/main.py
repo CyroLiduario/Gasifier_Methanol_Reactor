@@ -8,7 +8,7 @@ from scipy.integrate import solve_ivp
 with open('./materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
-caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer', 'saida_reformer.json')
+caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer_acquarola', 'saida_reformer.json')
 #caminho_saida_gas = os.path.join(os.path.dirname(__file__), '..', 'reformer_optimization', 'saida_reformer.json')
 
 with open(caminho_saida_gas, 'r', encoding='utf-8') as f:

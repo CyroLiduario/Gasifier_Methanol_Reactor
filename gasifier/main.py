@@ -88,18 +88,64 @@ y0 = [rho_B0, rho_char0, rho_M0] + C_g0 + [U_g0, P0, U_s0, T0, T0]
 # ==========================================
 print("Iniciando a integração do gaseificador industrial...")
 
+def sistema_edos(z, y, materiais, reator_params):
+
+    dydz, _ = gasifier_odes(
+        z,
+        y,
+        materiais,
+        reator_params
+    )
+
+    return dydz
+
 solucao = solve_ivp(
-    fun=gasifier_odes,
+    sistema_edos,
     t_span=(0, reator_params["L"]),
     y0=y0,
     args=(materiais, reator_params),
-    method='RK45',    # <-- Método idêntico ao ode23 do MATLAB
-    max_step=0.05,    # <-- Força o Python a ler o reator a cada 5 cm no máximo
+    method="RK45",
+    max_step=0.05,
     dense_output=True
 )
 
 z_vals = solucao.t
 y_vals = solucao.y
+
+taxas_secagem = []
+taxas_pirolise = []
+taxas_boudouard = []
+taxas_gasificacao_h2o = []
+taxas_gasificacao_h2 = []
+taxas_reformacao_ch4 = []
+taxas_oxidacao_ch4 = []
+taxas_oxidacao_co = []
+taxas_oxidacao_h2 = []
+taxas_wgs = []
+taxas_tar_cracking = []
+
+for i in range(len(z_vals)):
+
+    y_i = y_vals[:, i]
+
+    _, taxas_reacao = gasifier_odes(
+        z_vals[i],
+        y_i,
+        materiais,
+        reator_params
+    )
+
+    taxas_secagem.append(taxas_reacao["SECAGEM"])
+    taxas_pirolise.append(taxas_reacao["Pirólise_1"])
+    taxas_boudouard.append(taxas_reacao["G1_BOUDOUARD"])
+    taxas_gasificacao_h2o.append(taxas_reacao["G2_GASIFICAÇÃO_H2O"])
+    taxas_gasificacao_h2.append(taxas_reacao["G3_GASIFICAÇÃO_H2"])
+    taxas_reformacao_ch4.append(taxas_reacao["G4_REFORMAÇÃO_CH4"])
+    taxas_oxidacao_ch4.append(taxas_reacao["C1_OXIDAÇÃO_CH4"])
+    taxas_oxidacao_co.append(taxas_reacao["C2_OXIDAÇÃO_CO"])
+    taxas_oxidacao_h2.append(taxas_reacao["C3_OXIDAÇÃO_H2"])
+    taxas_wgs.append(taxas_reacao["WGS"])
+    taxas_tar_cracking.append(taxas_reacao["P2_TAR_CRACKING"])
 
 print("Integração concluída com sucesso!")
 
@@ -147,6 +193,103 @@ plt.ylabel('Temperatura (K)', fontsize=12)
 plt.title('Perfil de Temperaturas', fontsize=14)
 plt.legend()
 plt.grid(True)
+
+
+# Gráficos de Taxa das Reações
+# ==========================================
+# GRÁFICO — SECAGEM E PIRÓLISE
+# ==========================================
+
+fig, axes = plt.subplots(
+    1,
+    2,
+    figsize=(10, 4.5)
+)
+
+# ==========================
+# SECAGEM
+# ==========================
+
+axes[0].plot(
+    z_vals,
+    taxas_secagem,
+    linewidth=1.5
+)
+
+axes[0].set_xlabel("Comprimento do reator, z [m]")
+axes[0].set_ylabel("Taxa [kg/(m³·s)]")
+axes[0].set_title("Secagem")
+axes[0].grid(True, which="both")
+
+
+# ==========================
+# PIRÓLISE
+# ==========================
+
+axes[1].plot(
+    z_vals,
+    taxas_pirolise,
+    linewidth=1.5
+)
+
+axes[1].set_xlabel("Comprimento do reator, z [m]")
+axes[1].set_ylabel("Taxa [kg/(m³·s)]")
+axes[1].set_title("Pirólise")
+axes[1].grid(True, which="both")
+
+fig.suptitle("Taxas de secagem e pirólise")
+plt.tight_layout()
+
+# ==========================================
+# GRÁFICO — REAÇÕES QUÍMICAS
+# ==========================================
+
+fig, axes = plt.subplots(
+    3,
+    3,
+    figsize=(14, 11)
+)
+
+perfis = [
+    (taxas_boudouard, "Boudouard"),
+    (taxas_gasificacao_h2o, "Gasificação com H₂O"),
+    (taxas_gasificacao_h2, "Gasificação com H₂"),
+
+    (taxas_reformacao_ch4, "Reforma do CH₄"),
+    (taxas_oxidacao_ch4, "Oxidação do CH₄"),
+    (taxas_oxidacao_co, "Oxidação do CO"),
+
+    (taxas_oxidacao_h2, "Oxidação do H₂"),
+    (taxas_wgs, "Water-Gas Shift"),
+    (taxas_tar_cracking, "Cracking de alcatrão")
+]
+
+for ax, (taxa, titulo) in zip(
+    axes.flat,
+    perfis
+):
+
+    ax.plot(
+        z_vals,
+        taxa,
+        linewidth=1.5
+    )
+
+    ax.set_xlabel("z [m]")
+    ax.set_ylabel("Taxa")
+    ax.set_title(titulo)
+    ax.grid(True, which="both")
+
+
+fig.suptitle("Taxas das reações químicas no gaseificador", fontsize=16)
+
+plt.tight_layout()
+
+fig.subplots_adjust(
+    hspace=0.45,
+    top=0.92
+)
+
 plt.show()
 
 # ==========================================
