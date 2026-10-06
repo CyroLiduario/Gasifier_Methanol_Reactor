@@ -77,19 +77,33 @@ def gasifier_odes(z, y, materiais, reator_params):
     R1 = fatorchar * CRF * cinetica["g1_boudouard"]["A"] * math.exp(-cinetica["g1_boudouard"]["E"] / (Rg * T_s)) * (p_parcial["CO2"] - (p_parcial["CO"]**2) / K1)
     R2 = fatorchar * CRF * cinetica["g2_gasificacao_H2O"]["A"] * math.exp(-cinetica["g2_gasificacao_H2O"]["E"] / (Rg * T_s)) * (p_parcial["H2O"] - (p_parcial["CO"] * p_parcial["H2"]) / K2)
     R3 = fatorchar * CRF * cinetica["g3_gasificacao_H2"]["A"] * math.exp(-cinetica["g3_gasificacao_H2"]["E"] / (Rg * T_s)) * ((p_parcial["H2"]**2) - p_parcial["CH4"] / K3)
-    
+
     # Reações homogêneas (Gás-Gás) - Dependentes de T_g
     R4 = CRF * cinetica["g4_reformacao_CH4"]["A"] * math.exp(-cinetica["g4_reformacao_CH4"]["E"] / (Rg * T_g)) * ((p_parcial["CH4"] * p_parcial["H2O"]) - (p_parcial["CO"] * (p_parcial["H2"]**3)) / K4)
     R5 = CRF * cinetica["c1_oxidacao_CH4"]["A"] * math.exp(-cinetica["c1_oxidacao_CH4"]["E"] / (Rg * T_g)) * ((p_parcial["CH4"] * (p_parcial["O2"]**2)) - (p_parcial["CO2"] * (p_parcial["H2O"]**2)) / K5)
     R6 = CRF * cinetica["c2_oxidacao_CO"]["A"] * math.exp(-cinetica["c2_oxidacao_CO"]["E"] / (Rg * T_g)) * ((p_parcial["CO"]**2) * p_parcial["O2"] - (p_parcial["CO2"]**2) / K6)
     R7 = CRF * cinetica["c3_oxidacao_H2"]["A"] * math.exp(-cinetica["c3_oxidacao_H2"]["E"] / (Rg * T_g)) * ((p_parcial["H2"]**2) * p_parcial["O2"] - (p_parcial["H2O"]**2) / K7)
-    
+
     # Water-Gas Shift
     R8 = cinetica["wg_water_gas_shift"]["A"] * math.exp(-cinetica["wg_water_gas_shift"]["E"] / (Rg * T_g)) * (p_parcial["CO"] * p_parcial["H2O"] - (p_parcial["CO2"] * p_parcial["H2"]) / (0.02565 * math.exp(3966 / T_g)))
     
     # Quebra de Alcatrão (Cracking Tar)
     R9 = cinetica["p2_cracking_tar"]["A"] * math.exp(-cinetica["p2_cracking_tar"]["E"] / (Rg * T_g)) * max(0, rho_g["Tar"])
-
+    
+    taxas_reacao = {
+        "SECAGEM": m,
+        "Pirólise_1": Rp1,
+        "G1_BOUDOUARD": R1,
+        "G2_GASIFICAÇÃO_H2O": R2,
+        "G3_GASIFICAÇÃO_H2": R3,
+        "G4_REFORMAÇÃO_CH4": R4,
+        "C1_OXIDAÇÃO_CH4": R5,
+        "C2_OXIDAÇÃO_CO": R6,
+        "C3_OXIDAÇÃO_H2": R7,
+        "WGS": R8,
+        "P2_TAR_CRACKING": R9
+    }
+    
     # 6. Balanços de Massa (Sólidos e Gases)
     M_char = materiais["Solidos"]["Char"]["MM"] / 1000.0
     M_H2O = materiais["Gases"]["H2O"]["MM"] / 1000.0

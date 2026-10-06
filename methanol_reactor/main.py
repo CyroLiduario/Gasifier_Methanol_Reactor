@@ -59,7 +59,7 @@ def sistema_edos(w, y, componentes):
     }
     
     # Chama a função de cinética que calcula as taxas de geração
-    taxa_de_geracao = cinetica(condicoes_iniciais, componentes)
+    taxa_de_geracao,_ = cinetica(condicoes_iniciais, componentes)
 
     # Converte o dicionário de taxas de geração em uma lista de derivadas
     dy_dt = [
@@ -88,6 +88,93 @@ solucao = solve_ivp(
 
 # Extraindo as massas de catalisador
 massa_cat = solucao.t
+y_out = solucao.y
+
+# ==========================================
+# 6. PERFIS DAS TAXAS DE REAÇÃO
+# ==========================================
+
+taxas_co = []
+taxas_wgs = []
+taxas_co2 = []
+
+for i in range(len(massa_cat)):
+
+    condicoes_iniciais = {
+        "CO": y_out[0, i],
+        "H2": y_out[1, i],
+        "CH3OH": y_out[2,i],
+        "CH4": y_out[3, i],
+        "H2O": y_out[4, i],
+        "CO2": y_out[5, i],
+        "N2": y_out[6, i],
+        "T": y_out[7, i],
+        "P": y_out[8, i],
+        "Q": y_out[9, i]
+    }
+
+    _, taxas_reacao = cinetica(
+        condicoes_iniciais,
+        componentes
+    )
+
+    taxas_co.append(taxas_reacao["HIDROGENACAO_CO"])
+    taxas_wgs.append(taxas_reacao["WGS"])
+    taxas_co2.append(taxas_reacao["HIDROGENACAO_CO2"])
+
+# ===============================
+#   GRÁFICOS DE TAXA DE REAÇÃO
+# ===============================
+fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+
+# ==========================
+# HIDROGENAÇÃO DE CO
+# ==========================
+axes[0].plot(
+    massa_cat,
+    taxas_co,
+    linewidth=1.5
+)
+
+axes[0].set_xlabel("Massa de catalisador [kg]")
+axes[0].set_ylabel("Taxa [mol/(kg·s)]")
+axes[0].set_title("Hidrogenação do CO")
+axes[0].grid(True, which="both")
+
+
+# ==========================
+# WATER-GAS SHIFT
+# ==========================
+axes[1].plot(
+    massa_cat,
+    taxas_wgs,
+    linewidth=1.5
+)
+
+axes[1].set_xlabel("Massa de catalisador [kg]")
+axes[1].set_ylabel("Taxa [mol/(kg·s)]")
+axes[1].set_title("Water-Gas Shift")
+axes[1].grid(True, which="both")
+
+
+# ==========================
+# HIDROGENAÇÃO DE CO2
+# ==========================
+axes[2].plot(
+    massa_cat,
+    taxas_co2,
+    linewidth=1.5
+)
+
+axes[2].set_xlabel("Massa de catalisador [kg]")
+axes[2].set_ylabel("Taxa [mol/(kg·s)]")
+axes[2].set_title("Hidrogenação de CO2")
+axes[2].grid(True, which="both")
+
+
+fig.suptitle("Perfil das taxas de reação ao longo do leito")
+plt.tight_layout()
+
 
 # ==========================
 #   GRÁFICO DE COMPOSIÇÃO

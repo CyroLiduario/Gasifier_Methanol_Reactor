@@ -38,9 +38,13 @@ def cinetica(condicoes_iniciais, componentes):
     vazao_volumetrica = vazao_molar_total * parametros["Z"]*8.314*temperatura/pressao
 
     rt=8.314*temperatura
+
+    # CINÉTICA
     ka=1.88e8*exp(-113711/rt)
     kb=1.16e10*exp(-126523/rt)
     kc=7.08e4*exp(-68252/rt)
+
+    # EQUILÍBRIO
     KH2O=3.8e-10*exp(80876/rt)
     Kpa=exp((1.183e4/temperatura)-26.061)
     Kpb=exp((-4.773e3/temperatura)+4.672)
@@ -56,9 +60,17 @@ def cinetica(condicoes_iniciais, componentes):
         fracao_molar = vazao_molar[componente] / vazao_molar_total
         pressoes_parciais[componente] = fracao_molar * phi[componente] * (pressao / 101325)
 
+    # TAXAS DE REAÇÃO
+
     r1=(ka*KCO*((pressoes_parciais["CO"]*(pressoes_parciais["H2"]**1.5))-(pressoes_parciais["CH3OH"]/(Kpa*(pressoes_parciais["H2"]**0.5)))))/((1+(KCO*pressoes_parciais["CO"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
     r2=(kb*KCO2*((pressoes_parciais["CO"]*pressoes_parciais["H2"])-((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/Kpb)))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
     r3=(kc*KCO2*((pressoes_parciais["CO2"]*(pressoes_parciais["H2"]**1.5))-((pressoes_parciais["H2O"]*pressoes_parciais["CH3OH"])/(Kpc*(pressoes_parciais["H2"]**1.5)))))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
+
+    taxa_reacao = {
+        "HIDROGENACAO_CO": r1,
+        "WGS": r2,
+        "HIDROGENACAO_CO2": r3
+    }
 
     taxa_de_geração = {}
 
@@ -77,7 +89,7 @@ def cinetica(condicoes_iniciais, componentes):
     taxa_de_geração["T"] = dTdW
     taxa_de_geração["Q"] = dQdW
 
-    return taxa_de_geração
+    return taxa_de_geração, taxa_reacao
 
 def balanco_energia(componentes, temperatura, vazao_molar, r1, r2, r3):
     # ==============================
