@@ -45,12 +45,15 @@ def cinetica(condicoes_iniciais, componentes):
     kc=7.08e4*exp(-68252/rt)
 
     # EQUILÍBRIO
-    KH2O=3.8e-10*exp(80876/rt)
+    
     Kpa=exp((1.183e4/temperatura)-26.061)
     Kpb=exp((-4.773e3/temperatura)+4.672)
     Kpc=Kpa*Kpb
+
+    # ADSORÇÃO
     KCO=7.99e-7*exp(58700/rt)
     KCO2=1.02e-7*exp(68000/rt)
+    KH2O=3.8e-10*exp(80876/rt)
     RKH2=KH2O/(5.64e-11*exp(105600/rt))
 
     phi=coef_fugacidade(vazao_molar, vazao_molar_total, parametros, componentes)
@@ -63,7 +66,7 @@ def cinetica(condicoes_iniciais, componentes):
     # TAXAS DE REAÇÃO
 
     r1=(ka*KCO*((pressoes_parciais["CO"]*(pressoes_parciais["H2"]**1.5))-(pressoes_parciais["CH3OH"]/(Kpa*(pressoes_parciais["H2"]**0.5)))))/((1+(KCO*pressoes_parciais["CO"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
-    r2=(kb*KCO2*((pressoes_parciais["CO"]*pressoes_parciais["H2"])-((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/Kpb)))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
+    r2=(kb*KCO2*((pressoes_parciais["CO2"]*pressoes_parciais["H2"])-((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/Kpb)))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
     r3=(kc*KCO2*((pressoes_parciais["CO2"]*(pressoes_parciais["H2"]**1.5))-((pressoes_parciais["H2O"]*pressoes_parciais["CH3OH"])/(Kpc*(pressoes_parciais["H2"]**1.5)))))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
 
     taxa_reacao = {
