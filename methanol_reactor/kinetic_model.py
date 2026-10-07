@@ -1,4 +1,12 @@
-# Reações de síntese de metanol realizadas em catalisadores de Cu/ZnO/Al3O2
+# Realiza o cálculo de um síntese de metanol por gás de síntese em catalisadores de Cu/ZnO/Al3O2
+# conforme proposto por Park et al. (2014) e Graaf, Stamhuis e Beenackers (1998)
+'''
+    Catalyst: Cu/ZnO/Al3O2
+    HIDROGENAÇÃO DE CO: CO + 2 H2 ↔ CH3OH
+    RWGS: CO2 + H2 ↔ CO + H2O
+    HIDROGENAÇÃO DE CO2: CO2 + 3 H2 ↔ CH3OH + H2O
+    
+'''
 
 from math import exp, pi
 from thermodynamic import coef_fugacidade, viscosidade, SRK, capacidade_calorífica
@@ -68,6 +76,11 @@ def cinetica(condicoes_iniciais, componentes):
     r1=(ka*KCO*((pressoes_parciais["CO"]*(pressoes_parciais["H2"]**1.5))-(pressoes_parciais["CH3OH"]/(Kpa*(pressoes_parciais["H2"]**0.5)))))/((1+(KCO*pressoes_parciais["CO"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
     r2=(kb*KCO2*((pressoes_parciais["CO2"]*pressoes_parciais["H2"])-((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/Kpb)))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
     r3=(kc*KCO2*((pressoes_parciais["CO2"]*(pressoes_parciais["H2"]**1.5))-((pressoes_parciais["H2O"]*pressoes_parciais["CH3OH"])/(Kpc*(pressoes_parciais["H2"]**1.5)))))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
+
+    # r2: reação de RWGS
+    # CO2 + H2 <-> CO + H2O
+    # r2 > 0: sentido RWGS
+    # r2 < 0: sentido WGS
 
     taxa_reacao = {
         "HIDROGENACAO_CO": r1,
