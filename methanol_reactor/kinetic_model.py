@@ -53,13 +53,12 @@ def cinetica(condicoes_iniciais, componentes):
     kc=7.08e4*exp(-68252/rt)
 
     # EQUILÍBRIO
-    
-    Kpa=exp((1.183e4/temperatura)-26.061)
+    Kpa=exp((1.183e4/temperatura)-29.061)
     Kpb=exp((-4.773e3/temperatura)+4.672)
     Kpc=Kpa*Kpb
 
     # ADSORÇÃO
-    KCO=7.99e-7*exp(58700/rt)
+    KCO=7.99e-7*exp(58100/rt)
     KCO2=1.02e-7*exp(68000/rt)
     KH2O=3.8e-10*exp(80876/rt)
     RKH2=KH2O/(5.64e-11*exp(105600/rt))
