@@ -75,7 +75,7 @@ def cinetica(condicoes_iniciais, componentes):
 
     r1=(ka*KCO*((pressoes_parciais["CO"]*(pressoes_parciais["H2"]**1.5))-(pressoes_parciais["CH3OH"]/(Kpa*(pressoes_parciais["H2"]**0.5)))))/((1+(KCO*pressoes_parciais["CO"]))*(1+((KH2**0.5)*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
     r2=(kb*KCO2*((pressoes_parciais["CO2"]*pressoes_parciais["H2"])-((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/Kpb)))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+((KH2**0.5)*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
-    r3=(kc*KCO2*((pressoes_parciais["CO2"]*(pressoes_parciais["H2"]**1.5))-((pressoes_parciais["H2O"]*pressoes_parciais["CH3OH"])/(Kpc*(pressoes_parciais["H2"]**1.5)))))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+((KH2**2)*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
+    r3=(kc*KCO2*((pressoes_parciais["CO2"]*(pressoes_parciais["H2"]**1.5))-((pressoes_parciais["H2O"]*pressoes_parciais["CH3OH"])/(Kpc*(pressoes_parciais["H2"]**1.5)))))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+((KH2**0.5)*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
 
     # r2: reação de RWGS
     # CO2 + H2 <-> CO + H2O
