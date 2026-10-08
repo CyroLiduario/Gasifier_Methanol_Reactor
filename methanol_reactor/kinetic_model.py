@@ -49,7 +49,7 @@ def cinetica(condicoes_iniciais, componentes):
 
     # CINÉTICA
     ka=1.88e8*exp(-113711/rt)
-    kb=1.16e10*exp(-126523/rt)
+    kb=1.16e10*exp(-126573/rt)
     kc=7.08e4*exp(-68252/rt)
 
     # EQUILÍBRIO

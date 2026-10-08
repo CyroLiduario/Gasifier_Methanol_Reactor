@@ -290,25 +290,25 @@ print(f"Vazão Final de Matanol = {vazao_CH3OH_final:.2f} kg/h")
 # ==========================================
 
 # 1. Isolando as vazões iniciais (mol/s) - Índice 0 da solução
-F_CO_in_val    = float(solucao.y[0][0])
-F_H2_in_val    = float(solucao.y[1][0])
-F_CH3OH_in_val = float(solucao.y[2][0])
-F_CH4_in_val   = float(solucao.y[3][0])
-F_H2O_in_val   = float(solucao.y[4][0])
-F_CO2_in_val   = float(solucao.y[5][0])
-F_N2_in_val    = float(solucao.y[6][0])
+F_CO_in_val    = float(solucao.y[0][0])*numero_de_tubos
+F_H2_in_val    = float(solucao.y[1][0])*numero_de_tubos
+F_CH3OH_in_val = float(solucao.y[2][0])*numero_de_tubos
+F_CH4_in_val   = float(solucao.y[3][0])*numero_de_tubos
+F_H2O_in_val   = float(solucao.y[4][0])*numero_de_tubos
+F_CO2_in_val   = float(solucao.y[5][0])*numero_de_tubos
+F_N2_in_val    = float(solucao.y[6][0])*numero_de_tubos
 
 T_in_val       = float(solucao.y[7][0])
 P_in_val       = float(solucao.y[8][0])
 
 # 2. Isolando as vazões finais (mol/s) - Índice -1 da solução
-F_CO_out_val    = float(solucao.y[0][-1])
-F_H2_out_val    = float(solucao.y[1][-1])
-F_CH3OH_out_val = float(solucao.y[2][-1])
-F_CH4_out_val   = float(solucao.y[3][-1])
-F_H2O_out_val   = float(solucao.y[4][-1])
-F_CO2_out_val   = float(solucao.y[5][-1])
-F_N2_out_val    = float(solucao.y[6][-1])
+F_CO_out_val    = float(solucao.y[0][-1])*numero_de_tubos
+F_H2_out_val    = float(solucao.y[1][-1])*numero_de_tubos
+F_CH3OH_out_val = float(solucao.y[2][-1])*numero_de_tubos
+F_CH4_out_val   = float(solucao.y[3][-1])*numero_de_tubos
+F_H2O_out_val   = float(solucao.y[4][-1])*numero_de_tubos
+F_CO2_out_val   = float(solucao.y[5][-1])*numero_de_tubos
+F_N2_out_val    = float(solucao.y[6][-1])*numero_de_tubos
 
 T_out_val       = float(solucao.y[7][-1])
 P_out_val       = float(solucao.y[8][-1])
@@ -332,7 +332,7 @@ relatorio_metanol = {
     "Entrada_Reator_Metanol": {
         "Temperatura_K": T_in_val,
         "Pressao_Pa": P_in_val,
-        "Vazoes_Molares_Por_Tubo_mol_s": {
+        "Vazoes_Molares_mol_s": {
             "CO": F_CO_in_val,
             "H2": F_H2_in_val,
             "CH3OH": F_CH3OH_in_val,
@@ -345,7 +345,7 @@ relatorio_metanol = {
     "Saida_Reator_Metanol": {
         "Temperatura_K": T_out_val,
         "Pressao_Pa": P_out_val,
-        "Vazoes_Molares_Por_Tubo_mol_s": {
+        "Vazoes_Molares_mol_s": {
             "CO": F_CO_out_val,
             "H2": F_H2_out_val,
             "CH3OH": F_CH3OH_out_val,
