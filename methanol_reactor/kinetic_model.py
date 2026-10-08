@@ -58,10 +58,11 @@ def cinetica(condicoes_iniciais, componentes):
     Kpc=Kpa*Kpb
 
     # ADSORÇÃO
-    KCO=7.99e-7*exp(58100/rt)
-    KCO2=1.02e-7*exp(68000/rt)
-    KH2O=3.8e-10*exp(80876/rt)
-    RKH2=KH2O/(5.64e-11*exp(105600/rt))
+    KCO=7.99e-7*exp(58100/rt) # Graaf
+    KCO2=1.02e-7*exp(67400/rt) # Graaf
+    KH2O=3.8e-10*exp(80876/rt) # Park
+
+    KH2 = (KH2O/(4.13e-11*exp(104500/rt)))**2 # Graaf (K_H2O/(K_H2^0.5)) e Park
 
     phi=coef_fugacidade(vazao_molar, vazao_molar_total, parametros, componentes)
     pressoes_parciais = {}
@@ -72,9 +73,9 @@ def cinetica(condicoes_iniciais, componentes):
 
     # TAXAS DE REAÇÃO
 
-    r1=(ka*KCO*((pressoes_parciais["CO"]*(pressoes_parciais["H2"]**1.5))-(pressoes_parciais["CH3OH"]/(Kpa*(pressoes_parciais["H2"]**0.5)))))/((1+(KCO*pressoes_parciais["CO"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
-    r2=(kb*KCO2*((pressoes_parciais["CO2"]*pressoes_parciais["H2"])-((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/Kpb)))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
-    r3=(kc*KCO2*((pressoes_parciais["CO2"]*(pressoes_parciais["H2"]**1.5))-((pressoes_parciais["H2O"]*pressoes_parciais["CH3OH"])/(Kpc*(pressoes_parciais["H2"]**1.5)))))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+(RKH2*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
+    r1=(ka*KCO*((pressoes_parciais["CO"]*(pressoes_parciais["H2"]**1.5))-(pressoes_parciais["CH3OH"]/(Kpa*(pressoes_parciais["H2"]**0.5)))))/((1+(KCO*pressoes_parciais["CO"]))*(1+((KH2**0.5)*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
+    r2=(kb*KCO2*((pressoes_parciais["CO2"]*pressoes_parciais["H2"])-((pressoes_parciais["CO"]*pressoes_parciais["H2O"])/Kpb)))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+((KH2**0.5)*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
+    r3=(kc*KCO2*((pressoes_parciais["CO2"]*(pressoes_parciais["H2"]**1.5))-((pressoes_parciais["H2O"]*pressoes_parciais["CH3OH"])/(Kpc*(pressoes_parciais["H2"]**1.5)))))/((1+(KCO2*pressoes_parciais["CO2"]))*(1+((KH2**2)*(pressoes_parciais["H2"]**0.5))+(KH2O*pressoes_parciais["H2O"])))
 
     # r2: reação de RWGS
     # CO2 + H2 <-> CO + H2O
