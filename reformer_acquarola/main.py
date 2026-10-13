@@ -30,8 +30,7 @@ with open(caminho_saida_gas, 'r', encoding='utf-8') as f:
 saida = dados_in["Saida_Gaseificador"]
 vazoes_in = dict(saida["Vazoes_Molares_mol_s"])  
 
-# Removendo O2 e Tar (são zerados na saída do gaseificador)
-vazoes_in.pop("O2", None)
+# Removendo Tar (são zerados na saída do gaseificador)
 vazoes_in.pop("Tar", None)
 
 T_in = saida["Temperatura_K"]
@@ -40,7 +39,7 @@ P_in = saida["Pressao_Pa"]
 # ==========================================
 # 2. CARREGAMENTO DOS MATERIAIS E CONSTANTES
 # ==========================================
-with open('./reformer/materiais.json', 'r') as materiais:
+with open('./reformer_acquarola/materiais.json', 'r') as materiais:
     componentes = json.load(materiais)
 
 # ==========================================
@@ -66,7 +65,8 @@ else:
 
 Massa_Catalisador_Total = (0, 1000) # kg de catalisador
 
-# Vetor de estado [CO, H2, CH4, H2O, CO2, N2, T]
+
+# Vetor de estado [CO, H2, CH4, H2O, CO2, N2, O2, T]
 y0 = [
     vazoes_in.get("CO", 0), 
     vazoes_in.get("H2", 0), 
@@ -74,6 +74,7 @@ y0 = [
     vazoes_in.get("H2O", 0), 
     vazoes_in.get("CO2", 0), 
     vazoes_in.get("N2", 0), 
+    vazoes_in.get("O2", 0),
     T_in,
     P_in,
     0
@@ -92,9 +93,10 @@ def sistema_edos(w, y, componentes, diametro_reator):
         "H2O": y[3],
         "CO2": y[4],
         "N2": y[5],
-        "T": y[6],
-        "P": y[7],
-        "Q": y[8]
+        "O2": y[6],
+        "T": y[7],
+        "P": y[8],
+        "Q": y[9]
     }
     
     # Chama a função de cinética que calcula as taxas de geração
@@ -108,6 +110,7 @@ def sistema_edos(w, y, componentes, diametro_reator):
         taxa_de_geracao["H2O"],
         taxa_de_geracao["CO2"],
         taxa_de_geracao["N2"],
+        taxa_de_geracao["O2"],
         taxa_de_geracao["T"],
         taxa_de_geracao["P"],
         taxa_de_geracao["Q"]
@@ -130,7 +133,7 @@ solucao = solve_ivp(
 massa_w = solucao.t
 y_out = solucao.y
 
-F_CO_out, F_H2_out, F_CH4_out, F_H2O_out, F_CO2_out, F_N2_out, T_out, P_out, Q_out = y_out[:, -1]*numero_de_tubos
+F_CO_out, F_H2_out, F_CH4_out, F_H2O_out, F_CO2_out, F_N2_out, F_O2_out, T_out, P_out, Q_out = y_out[:, -1]*numero_de_tubos
 
 H2_CO_in = y0[1] / y0[0] if y0[0] > 0 else 0
 H2_CO_out = F_H2_out / F_CO_out if F_CO_out > 0 else 0
@@ -153,9 +156,10 @@ for i in range(len(massa_w)):
         "H2O": y_out[3, i],
         "CO2": y_out[4, i],
         "N2": y_out[5, i],
-        "T": y_out[6, i],
-        "P": y_out[7, i],
-        "Q": y_out[8, i]
+        "O2": y_out[6, i],
+        "T": y_out[7, i],
+        "P": y_out[8, i],
+        "Q": y_out[9, i]
     }
 
     _, taxas_reacao = cinetica_reformer(
@@ -186,7 +190,8 @@ relatorio = {
             "CH4": float(F_CH4_out),
             "H2O": float(F_H2O_out), 
             "CO2": float(F_CO2_out), 
-            "N2": float(F_N2_out)
+            "N2": float(F_N2_out),
+            "O2": float(F_O2_out)
         },
         "Razao_H2_CO_Saida": float(H2_CO_out),
         "Temperatura_Saida_K": float(T_out),

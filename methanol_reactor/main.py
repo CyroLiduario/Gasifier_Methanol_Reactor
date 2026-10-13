@@ -24,7 +24,8 @@ vazao_molar = {
     "CH4": vazoes_brutas.get("CH4"),
     "H2O": vazoes_brutas.get("H2O"),
     "CO2": vazoes_brutas.get("CO2"),
-    "N2": vazoes_brutas.get("N2")
+    "N2": vazoes_brutas.get("N2"),
+    "O2": vazoes_brutas.get("O2")
 }
 wt_agua = vazao_molar["H2O"]/sum(vazao_molar.values())
 
@@ -53,9 +54,10 @@ def sistema_edos(w, y, componentes):
         "H2O": y[4],
         "CO2": y[5],
         "N2": y[6],
-        "T": y[7],
-        "P": y[8],
-        "Q": y[9]
+        "O2": y[7],
+        "T": y[8],
+        "P": y[9],
+        "Q": y[10]
     }
     
     # Chama a função de cinética que calcula as taxas de geração
@@ -70,6 +72,7 @@ def sistema_edos(w, y, componentes):
         taxa_de_geracao["H2O"],
         taxa_de_geracao["CO2"],
         taxa_de_geracao["N2"],
+        taxa_de_geracao["O2"],
         taxa_de_geracao["T"],
         taxa_de_geracao["P"],
         taxa_de_geracao["Q"]
@@ -108,9 +111,10 @@ for i in range(len(massa_cat)):
         "H2O": y_out[4, i],
         "CO2": y_out[5, i],
         "N2": y_out[6, i],
-        "T": y_out[7, i],
-        "P": y_out[8, i],
-        "Q": y_out[9, i]
+        "O2": y_out[7, i],
+        "T": y_out[8, i],
+        "P": y_out[9, i],
+        "Q": y_out[10, i]
     }
 
     _, taxas_reacao = cinetica(
@@ -188,6 +192,7 @@ vazao_CH4 = solucao.y[3]
 vazao_H2O = solucao.y[4]
 vazao_CO2 = solucao.y[5]
 vazao_N2 = solucao.y[6]
+vazao_O2 = solucao.y[7]
 
 # Plotando os resultados
 plt.figure(figsize=(10, 6))
@@ -210,7 +215,7 @@ plt.grid(True)
 # ==========================
 #   PERFIL DE PRESSÃO
 # ==========================
-pressao = solucao.y[8]
+pressao = solucao.y[9]
 # Plotando os resultados
 plt.figure(figsize=(10, 6))
 plt.plot(massa_cat, pressao, label="P [Pa]")
@@ -226,7 +231,7 @@ plt.grid(True)
 #   PERFIL DE TEMPERATURA
 # ==========================
 
-temperatura = solucao.y[7]
+temperatura = solucao.y[8]
 # Plotando os resultados
 plt.figure(figsize=(10, 6))
 
@@ -243,7 +248,7 @@ plt.grid(True)
 #   PERFIL DE CALOR
 # ==========================
 
-calor = solucao.y[9]
+calor = solucao.y[10]
 # Plotando os resultados
 plt.figure(figsize=(10, 6))
 
@@ -297,9 +302,10 @@ F_CH4_in_val   = float(solucao.y[3][0])*numero_de_tubos
 F_H2O_in_val   = float(solucao.y[4][0])*numero_de_tubos
 F_CO2_in_val   = float(solucao.y[5][0])*numero_de_tubos
 F_N2_in_val    = float(solucao.y[6][0])*numero_de_tubos
+F_O2_in_val    = float(solucao.y[7][0])*numero_de_tubos
 
-T_in_val       = float(solucao.y[7][0])
-P_in_val       = float(solucao.y[8][0])
+T_in_val       = float(solucao.y[8][0])
+P_in_val       = float(solucao.y[9][0])
 
 # 2. Isolando as vazões finais (mol/s) - Índice -1 da solução
 F_CO_out_val    = float(solucao.y[0][-1])*numero_de_tubos
@@ -309,9 +315,10 @@ F_CH4_out_val   = float(solucao.y[3][-1])*numero_de_tubos
 F_H2O_out_val   = float(solucao.y[4][-1])*numero_de_tubos
 F_CO2_out_val   = float(solucao.y[5][-1])*numero_de_tubos
 F_N2_out_val    = float(solucao.y[6][-1])*numero_de_tubos
+F_O2_out_val    = float(solucao.y[7][-1])*numero_de_tubos
 
-T_out_val       = float(solucao.y[7][-1])
-P_out_val       = float(solucao.y[8][-1])
+T_out_val       = float(solucao.y[8][-1])
+P_out_val       = float(solucao.y[9][-1])
 
 # 3. Cálculos de Performance do Reator
 conversao_CO = ((F_CO_in_val - F_CO_out_val) / F_CO_in_val) * 100.0 if F_CO_in_val > 0 else 0.0
@@ -339,7 +346,8 @@ relatorio_metanol = {
             "CH4": F_CH4_in_val,
             "H2O": F_H2O_in_val,
             "CO2": F_CO2_in_val,
-            "N2": F_N2_in_val
+            "N2": F_N2_in_val,
+            "O2": F_O2_in_val
         }
     },
     "Saida_Reator_Metanol": {
@@ -352,7 +360,8 @@ relatorio_metanol = {
             "CH4": F_CH4_out_val,
             "H2O": F_H2O_out_val,
             "CO2": F_CO2_out_val,
-            "N2": F_N2_out_val
+            "N2": F_N2_out_val,
+            "O2": F_O2_out_val
         },
         "Performance_Global": {
             "Conversao_CO_percent": float(conversao_CO),

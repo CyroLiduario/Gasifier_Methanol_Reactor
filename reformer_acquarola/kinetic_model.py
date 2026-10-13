@@ -82,9 +82,10 @@ def cinetica_reformer(condicoes_iniciais, componentes, diametro_reator):
     taxa_de_geracao["H2"] = (2*r_dr)+(3*r_sr)+(r_wgs)
     taxa_de_geracao["CH4"] = (-r_dr)+(-r_sr)+(0)
     taxa_de_geracao["N2"] = 0
+    taxa_de_geracao["O2"] = 0
 
-    taxa_de_geracao["P"] = perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica, diametro_reator)
-    # taxa_de_geracao["P"] = 0
+    # taxa_de_geracao["P"] = perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica, diametro_reator)
+    taxa_de_geracao["P"] = 0
 
     dTdW, dQdW = balanco_energia(componentes, temperatura, vazao_molar, r_dr, r_sr, r_wgs)
     

@@ -97,9 +97,11 @@ def cinetica(condicoes_iniciais, componentes):
     taxa_de_geração["H2O"]=(r2+r3)
     taxa_de_geração["CO2"]=(-r2)+(-r3)
     taxa_de_geração["N2"]=0
+    taxa_de_geração["O2"]=0
 
-    taxa_de_geração["P"] = perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica)
-    
+    # taxa_de_geração["P"] = perda_de_carga(componentes, vazao_massica, vazao_massica_total, temperatura, vazao_volumetrica)
+    taxa_de_geração["P"] = 0
+
     dTdW, dQdW = balanco_energia(componentes, temperatura, vazao_molar, r1, r2, r3)
     
     taxa_de_geração["T"] = dTdW
