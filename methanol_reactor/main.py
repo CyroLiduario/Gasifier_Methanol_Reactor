@@ -100,6 +100,8 @@ y_out = solucao.y
 taxas_co = []
 taxas_wgs = []
 taxas_co2 = []
+phi = []
+fugacity = []
 
 for i in range(len(massa_cat)):
 
@@ -125,6 +127,8 @@ for i in range(len(massa_cat)):
     taxas_co.append(taxas_reacao["HIDROGENACAO_CO"])
     taxas_wgs.append(taxas_reacao["WGS"])
     taxas_co2.append(taxas_reacao["HIDROGENACAO_CO2"])
+    phi.append(taxas_reacao["phi"])
+    fugacity.append(taxas_reacao["fugacity"])
 
 # ===============================
 #   GRÁFICOS DE TAXA DE REAÇÃO
@@ -325,8 +329,8 @@ conversao_CO = ((F_CO_in_val - F_CO_out_val) / F_CO_in_val) * 100.0 if F_CO_in_v
 conversao_CO2 = ((F_CO2_in_val - F_CO2_out_val) / F_CO2_in_val) * 100.0 if F_CO2_in_val > 0 else 0.0
 
 # Produção de Metanol: mol/s -> kg/h total da planta
-producao_metanol_tubo = F_CH3OH_out_val * 3600.0 * (componentes["CH3OH"]["MM"] / 1000.0) # kg/h por tubo
-producao_metanol_total = producao_metanol_tubo * numero_de_tubos        # kg/h global
+producao_metanol_total = F_CH3OH_out_val * 3600.0 * (componentes["CH3OH"]["MM"] / 1000.0) # kg/h por tubo
+producao_metanol_tubo = producao_metanol_total / numero_de_tubos        # kg/h global
 
 # 4. Estruturação do Dicionário de Relatório
 relatorio_metanol = {
@@ -377,5 +381,15 @@ caminho_arquivo = os.path.join(os.path.dirname(__file__), 'saida_metanol.json')
 
 with open(caminho_arquivo, 'w', encoding='utf-8') as f:
     json.dump(relatorio_metanol, f, indent=4)
+
+caminho_arquivo = os.path.join(os.path.dirname(__file__), 'coef_fugacidade.json')
+
+with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+    json.dump(phi, f, indent=4)
+
+caminho_arquivo = os.path.join(os.path.dirname(__file__), 'fugacidade.json')
+
+with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+    json.dump(fugacity, f, indent=4)
 
 print(f"Relatório de síntese de metanol gerado com sucesso em: {caminho_arquivo}")
