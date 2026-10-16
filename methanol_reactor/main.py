@@ -382,6 +382,8 @@ caminho_arquivo = os.path.join(os.path.dirname(__file__), 'saida_metanol.json')
 with open(caminho_arquivo, 'w', encoding='utf-8') as f:
     json.dump(relatorio_metanol, f, indent=4)
 
+print(f"Relatório de síntese de metanol gerado com sucesso em: {caminho_arquivo}")
+
 caminho_arquivo = os.path.join(os.path.dirname(__file__), 'coef_fugacidade.json')
 
 with open(caminho_arquivo, 'w', encoding='utf-8') as f:
@@ -392,4 +394,17 @@ caminho_arquivo = os.path.join(os.path.dirname(__file__), 'fugacidade.json')
 with open(caminho_arquivo, 'w', encoding='utf-8') as f:
     json.dump(fugacity, f, indent=4)
 
-print(f"Relatório de síntese de metanol gerado com sucesso em: {caminho_arquivo}")
+caminho_arquivo = os.path.join(os.path.dirname(__file__), 'r_CO.json')
+
+with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+    json.dump(taxas_co, f, indent=4)
+
+caminho_arquivo = os.path.join(os.path.dirname(__file__), 'r_WGS.json')
+
+with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+    json.dump(taxas_wgs, f, indent=4)
+
+caminho_arquivo = os.path.join(os.path.dirname(__file__), 'r_CO2.json')
+
+with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+    json.dump(taxas_co2, f, indent=4)
