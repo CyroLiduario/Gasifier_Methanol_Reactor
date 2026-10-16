@@ -38,7 +38,7 @@ def SRK(mol, mol_total, temperatura, pressão, componentes):
     #coeffs = [1, -(1 - B), A - 2*B - 3*B**2, -(A*B - B**2 - B**3)]
     coeffs = [1, -1, (A - B - B**2), -(A * B)]
     Z_roots = np.roots(coeffs)
-    Z = np.real(Z_roots[np.isreal(Z_roots)])[0]
+    Z = max(np.real(Z_roots[np.isreal(Z_roots)]))
 
     return alfa, aci, ai, bi, aij, a_mix, b_mix, A, B, Z
 
