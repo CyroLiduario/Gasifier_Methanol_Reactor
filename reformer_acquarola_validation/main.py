@@ -40,11 +40,11 @@ vazoes_in = {
     "O2": 0,
     "CO": 0,
     "CO2": 1.72191091336226E-05,
-    "H2": 0.0001,
+    "H2": 0.000000001,
     "CH4": 4.30477728340565E-05,
     "N2": 3.22794803965108E-05}
 
-T_in = (800+273.15)
+T_in = (810+273.15)
 P_in = 7e5
 
 # ==========================================
@@ -138,7 +138,7 @@ solucao = solve_ivp(
     Massa_Catalisador_Total,
     y0,
     args=(componentes,diametro_reator),
-    method='RK45'
+    method='Radau'
 )
 
 massa_w = solucao.t
