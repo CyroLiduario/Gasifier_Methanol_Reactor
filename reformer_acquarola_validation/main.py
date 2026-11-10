@@ -40,7 +40,7 @@ vazoes_in = {
     "O2": 0,
     "CO": 0,
     "CO2": 1.72191091336226E-05,
-    "H2": 0,
+    "H2": 0.0001,
     "CH4": 4.30477728340565E-05,
     "N2": 3.22794803965108E-05}
 
@@ -74,7 +74,7 @@ else:
     diametro_reator = 3
     numero_de_tubos = 1
 
-Massa_Catalisador_Total = (0, 0.1) # kg de catalisador
+Massa_Catalisador_Total = (0, 0.001) # kg de catalisador => 0.001 kg = 1 g
 
 
 # Vetor de estado [CO, H2, CH4, H2O, CO2, N2, O2, T]
