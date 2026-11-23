@@ -104,7 +104,7 @@ solucao = solve_ivp(
     t_span=(0, reator_params["L"]),
     y0=y0,
     args=(materiais, reator_params),
-    method="RK45",
+    method="RK23",
     max_step=0.05,
     dense_output=True
 )

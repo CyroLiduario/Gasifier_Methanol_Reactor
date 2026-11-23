@@ -53,7 +53,7 @@ def cinetica_reformer(condicoes_iniciais, componentes, diametro_reator):
         ) # mol/kg*s 
 
     # Steam Reforming: CH4 + H2O ↔ CO+ 3 H2
-    k_sr = 5.78e13*exp(-217010/(Rg*temperatura)) # (kmol*(Pa^-0.5))/(kg*s)
+    k_sr = 5.79e13*exp(-217010/(Rg*temperatura)) # (kmol*(Pa^-0.5))/(kg*s)
     K_sr = 8.055e22*exp(-225360/(Rg*temperatura)) # Pa²
     r_sr = 1e3*(k_sr/(pressoes_parciais["H2"]**2.5))*(
         ((pressoes_parciais["CH4"]*pressoes_parciais["H2O"])-(((pressoes_parciais["H2"]**3)*pressoes_parciais["CO"])/K_sr))/(

@@ -40,7 +40,7 @@ vazoes_in = {
     "O2": 0,
     "CO": 0,
     "CO2": 1.72191091336226E-05,
-    "H2": 0.000000001,
+    "H2": 1e-9,
     "CH4": 4.30477728340565E-05,
     "N2": 3.22794803965108E-05}
 
@@ -138,7 +138,7 @@ solucao = solve_ivp(
     Massa_Catalisador_Total,
     y0,
     args=(componentes,diametro_reator),
-    method='Radau'
+    method='BDF'
 )
 
 massa_w = solucao.t

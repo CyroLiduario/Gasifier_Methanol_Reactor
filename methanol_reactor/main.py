@@ -86,7 +86,7 @@ solucao = solve_ivp(
     massa_de_catalisador,
     condicoes_iniciais,
     args=(componentes,),
-    method='RK45'  # Método Runge-Kutta de 4ª e 5ª ordem
+    method='BDF'  # Método Runge-Kutta de 4ª e 5ª ordem
 )
 
 # Extraindo as massas de catalisador
